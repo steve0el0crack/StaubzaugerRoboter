@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=TestRaum
+comment1.params=
+comment1.target=void\ act()
+comment2.params=
+comment2.target=void\ clear()
+comment3.params=
+comment3.target=void\ initialisiereRaum1()
+comment4.params=
+comment4.target=void\ initialisiereRaum2()
+comment5.params=i
+comment5.target=void\ initialisiereTestRaum(int)
+comment6.params=xMin\ yMin\ xW\ yW
+comment6.target=void\ initialisiereMoebel(int,\ int,\ int,\ int)
+comment7.params=
+comment7.target=void\ intialisiereRoboter()
+comment8.params=
+comment8.target=void\ initialisiereStaub()
+numComments=9

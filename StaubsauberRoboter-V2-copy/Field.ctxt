@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=Field
+comment1.params=pX\ pY
+comment1.target=Field(int,\ int)
+comment2.params=
+comment2.target=int[]\ getCenter()
+comment3.params=
+comment3.target=int[]\ getCoords()
+comment4.params=
+comment4.target=int[]\ getValues()
+comment5.params=
+comment5.target=int\ getNumber()
+comment6.params=n
+comment6.target=void\ setNumber(int)
+numComments=7
