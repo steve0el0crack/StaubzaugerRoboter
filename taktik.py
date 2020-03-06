@@ -7,14 +7,22 @@ world = []
 for reihe in range(0, place_num[0]):
         world.append([])
         for place in range(0, place_num[1]):
-                world[reihe].append({":x": place, ":y": reihe, ":H" : 0, ":index" : ""})
-
-def presentarray(x):
-	for i in x:
-		print i
-
+                world[reihe].append({":x": place, ":y": reihe, ":H" : 0, ":index" : "", ":display" :  "-"})
+		
 world[random.randint(0, 3) - 1][random.randint(0, 3) - 1][":index"] = 0
-presentarray(world)
+
+
+def setdisplay():
+	for y in range(0, place_num[0]):
+                for x in range(0, place_num[1]):
+			if  world[y][x][":index"] != "":
+				world[y][x][":display"] = world[y][x][":index"]  
+
+def presentworld():
+	for y in range(0, place_num[0]):
+        	for x in range(0, place_num[1]):
+			print world[y][x][":display"],
+		print ""
 
 def searchplace(xkey, ykey, xval, yval):
 	for reihe in world:
@@ -36,12 +44,10 @@ def numbering(origin):
 	for i in [1, -1]:
 		coords = searchinworld(searchplace(":x", ":y", x + i, y))
 		if coords != None:
-			print "CH"
 			setindex(coords, 1)		
 	for i in [1, -1]:
 		coords = searchinworld(searchplace(":x", ":y", x, y + i))
 		if coords != None:
-			print "CH"
 			setindex(coords, 1)	
 
 print "%%%%%%%%%%%%%%%%%"
@@ -51,13 +57,15 @@ def searchindex(value):
                 for place in reihe:
                         if place[":index"] == value:
                                   return place    
+
+presentworld()
 numbering(searchindex(0))
+setdisplay()
 
 print "---------------------------"
 
-presentarray(world)
+presentworld()
 
-#map(lambda x, setindex(x, 1),  numbering(searchplace(":index", 0)))
 
 
 
