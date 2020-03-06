@@ -21,20 +21,31 @@ def searchplace(xkey, ykey, xval, yval):
 		for place in reihe:
 			if place[xkey] == xval and place[ykey] == yval:
 				  return place 
-def setindex(stelle, value):
-	stelle[":index"] = value
+def setindex(coords, value): 
+	if type(coords) == None:
+                print "XXXXXXXXXX"
+		return 	
+	else:
+		print coords
+		world[coords[0]][coords[1]][":index"] = value
+	
+def searchinworld(place):
+	if type(place) == None:
+		print "XXXXXXXXXX"
+		return 
+	else:
+		for y in range(0, place_num[0]):
+			for x in range(0, place_num[1]):
+				if place == world[y][x]:
+					return x, y	
 
 def numbering(origin):
-	nachbarn = []
 	x = origin[":x"]
 	y = origin[":y"]
 	for i in [1, -1]:
-		print str(x + i)
-		print searchplace(":x", ":y", x + i, y)
+		setindex(searchinworld(searchplace(":x", ":y", x + i, y)), 1)
 	for i in [1, -1]:
-		print str(x + i)
-		print searchplace(":x", ":y", x, y + i)
-	return nachbarn
+		setindex(searchinworld(searchplace(":x", ":y", x, y + i)), 1)
 
 print "%%%%%%%%%%%%%%%%%"
 
