@@ -22,30 +22,27 @@ def searchplace(xkey, ykey, xval, yval):
 			if place[xkey] == xval and place[ykey] == yval:
 				  return place 
 def setindex(coords, value): 
-	if type(coords) == None:
-                print "XXXXXXXXXX"
-		return 	
-	else:
-		print coords
-		world[coords[0]][coords[1]][":index"] = value
+	world[coords[1]][coords[0]][":index"] = value
 	
 def searchinworld(place):
-	if type(place) == None:
-		print "XXXXXXXXXX"
-		return 
-	else:
-		for y in range(0, place_num[0]):
-			for x in range(0, place_num[1]):
-				if place == world[y][x]:
-					return x, y	
+	for y in range(0, place_num[0]):
+		for x in range(0, place_num[1]):
+			if place == world[y][x]:
+				return x, y	
 
 def numbering(origin):
 	x = origin[":x"]
 	y = origin[":y"]
 	for i in [1, -1]:
-		setindex(searchinworld(searchplace(":x", ":y", x + i, y)), 1)
+		coords = searchinworld(searchplace(":x", ":y", x + i, y))
+		if coords != None:
+			print "CH"
+			setindex(coords, 1)		
 	for i in [1, -1]:
-		setindex(searchinworld(searchplace(":x", ":y", x, y + i)), 1)
+		coords = searchinworld(searchplace(":x", ":y", x, y + i))
+		if coords != None:
+			print "CH"
+			setindex(coords, 1)	
 
 print "%%%%%%%%%%%%%%%%%"
 
@@ -56,7 +53,9 @@ def searchindex(value):
                                   return place    
 numbering(searchindex(0))
 
+print "---------------------------"
 
+presentarray(world)
 
 #map(lambda x, setindex(x, 1),  numbering(searchplace(":index", 0)))
 
