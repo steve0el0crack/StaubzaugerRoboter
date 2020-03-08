@@ -1,5 +1,9 @@
 import random
 import sys
+import os
+import time
+
+#MAXIMAL DIMENSIONS of the world in terminal -----------> 35 x 35
 
 x = int(sys.argv[1])
 y = int(sys.argv[2])
@@ -31,7 +35,8 @@ def countfreeplaces(key, value):
 def presentworld():
 	for y in range(0, place_num[0]):
         	for x in range(0, place_num[1]):
-			print world[y][x][":display"],
+			todisplay = str(world[y][x][":display"])
+			sys.stdout.write(todisplay.ljust(4))
 		print ""
 
 def searchplace(xkey, ykey, xval, yval):
@@ -72,7 +77,9 @@ def numbering(origins, layer):
 				setindex(coords, layer)	
 				recurcoords.append(coords)	
 	setdisplay()
-	#print countfreeplaces(":index", "")
+	presentworld()
+	time.sleep(0.2)
+	os.system("clear")
 	if countfreeplaces(":index", "") > 0:
 		#print "*****************"	
 		#presentworld()
@@ -83,7 +90,6 @@ def numbering(origins, layer):
 
 numbering([searchinworld(searchindex(0))], 1)
 
-print "*****************"
 presentworld()
 
 
