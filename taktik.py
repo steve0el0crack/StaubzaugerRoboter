@@ -20,7 +20,7 @@ def setorigin():
 	return ocoords
 ocoords = setorigin()
 
-def setdisplay():
+def setinitialdisplay():
 	for yi, reihe in enumerate(world):								#DISPLAY ----> RENDERING
                 for xi, place in enumerate(reihe):
 			if  place[":distance"] != "":
@@ -45,7 +45,7 @@ def presentworld():
 			sys.stdout.write(todisplay.ljust(4))
 		print ""
 
-def searchplace(xkey, ykey, xval, yval):
+def searchplacebyrelation(xkey, ykey, xval, yval):
 	for reihe in world:
 		for place in reihe:
 			if place[xkey] == xval and place[ykey] == yval:
@@ -60,29 +60,25 @@ def searchinworld(place):											#Search by STRUCT, return COORDS
 				return x, y	
 
 def searchbydistance(value):												#Return STRUCT
-	for reihe in world:
-                for place in reihe:
-                        if place[":distance"] == value:
-                                  return place    
-
+	return [place for reihe in world for place in reihe if place[":distance"] == value]
 
 
 def numbering(origins, maxdistance):
 	recurcoords = []
-	for origin in origins:
+	for origin in origins:											#SETTING A ROUND OF DISTANCES
 		x = origin[0]
 		y = origin[1]
 		for i in [1, -1]:
-			coords = searchinworld(searchplace(":x", ":y", x + i, y))
-			if coords != None and searchplace(":x", ":y", x + i, y)[":distance"] ==  "":
+			coords = searchinworld(searchplacebyrelation(":x", ":y", x + i, y))
+			if coords != None and searchplacebyrelation(":x", ":y", x + i, y)[":distance"] ==  "":
 				setindex(coords, maxdistance)
 				recurcoords.append(coords)		
 		for i in [1, -1]:
-			coords = searchinworld(searchplace(":x", ":y", x, y + i))
-			if coords != None and searchplace(":x", ":y", x, y + i)[":distance"] ==  "":
+			coords = searchinworld(searchplacebyrelation(":x", ":y", x, y + i))
+			if coords != None and searchplacebyrelation(":x", ":y", x, y + i)[":distance"] ==  "":
 				setindex(coords, maxdistance)	
 				recurcoords.append(coords)	
-	setdisplay()												#SET WHAT TO RENDER
+	setinitialdisplay()											#SET WHAT TO RENDER base on DISTANCES
 	presentworld()												#RENDER
 	time.sleep(0.2)
 	os.system("clear")
@@ -90,12 +86,44 @@ def numbering(origins, maxdistance):
 		return numbering(recurcoords, maxdistance + 1) 
 	else:
 		return maxdistance, recurcoords
-print numbering([searchinworld(searchbydistance(0))], 1)
-
-presentworld()
+print numbering([searchinworld(searchbydistance(0)[0])], 1)
 
 
+def move(ocoords, cond):                                                     #RECURSIVE -----> ONLY one COORD NEEDED, ONLY 1 ELEMENT TO MOVE (X)      
+        os.system("clear")
+	presentworld()
 
+#RANDOM MOVEMENT ------> NIKITA
+	goalindex = searchinworld(random.choice(searchbydistance(1)))		
+	
+move(0, 0)
+	
+"""		
+	if coords[":y"] + change[1] == ydim - 1:                        #Y EDGE
+		nextcoords = {":x" : coords[":x"], ":y" : 0}
+
+	elif coords[":x"] + change[0] == xdim + 1:                      #X EDGE
+		nextcoords = {":x" : 0, ":y" : coords[":y"]}
+	else:
+		nextcoords = {":x" : coords[":x"] + change[0] , ":y" : coords[":y"] + change[1]}
+
+	if detectlampe(getstruct(coords, world)) == "red" or "auto" in getstruct(nextcoords, world).keys():             #TRAFFIC LIGHT
+	    continue
+	else:
+		auto = getstruct(coords, world).pop("auto")
+		getstruct(nextcoords, world)["auto"] = auto
+		recurindex.append(nextcoords)
+		time.sleep(1)
+        if cond == 0:
+                os.system("clear")
+                paintworld()
+                print "MAKED"
+                return ["a"]
+        else:
+                sys.stdout.write("RECURSIVE!")
+                os.system("clear")
+                move(recurindex, cond - 1)
+"""
 
 
 
