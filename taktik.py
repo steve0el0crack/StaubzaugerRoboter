@@ -87,8 +87,9 @@ def numbering(origins, maxdistance):
 	else:
 		return maxdistance, recurcoords
 print numbering([searchinworld(searchbydistance(0)[0])], 1)
+presentworld()
 
-
+"""
 def move(ocoords, cond):                                                     #RECURSIVE -----> ONLY one COORD NEEDED, ONLY 1 ELEMENT TO MOVE (X)      
         os.system("clear")
 	presentworld()
@@ -98,7 +99,6 @@ def move(ocoords, cond):                                                     #RE
 	
 move(0, 0)
 	
-"""		
 	if coords[":y"] + change[1] == ydim - 1:                        #Y EDGE
 		nextcoords = {":x" : coords[":x"], ":y" : 0}
 
