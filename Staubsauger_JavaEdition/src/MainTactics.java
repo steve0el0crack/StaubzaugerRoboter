@@ -15,7 +15,8 @@ public class MainTactics {
 
         world.present();
 
-        new Visualizer();
+        Visualizer visualizer = new Visualizer(world.fields);
+        visualizer.repaint();
     }
 
     private static int[] setOrigin() {

@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class World {
     public ArrayList<Field> fields = new ArrayList<>();
