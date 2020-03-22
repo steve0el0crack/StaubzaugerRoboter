@@ -6,14 +6,10 @@ import time
 
 x = int(sys.argv[1])
 y = int(sys.argv[2])
-place_num = [x, y]
+world_dims = {":x" : x, ":y" : y}
 
-world = []
-for reihe in range(0, place_num[0]):
-        world.append([])
-        for place in range(0, place_num[1]):
-                world[reihe].append({":x": place, ":y": reihe, ":state" : "", ":distance" : "", ":display" :  ""})	#WORLD
-			
+world = [{":x" : x, ":y" : y, ":state" : "", ":distance" : "", ":display" : ""} for y in world_dims[":y"] for x in world_dims[":x"]]
+
 def setorigin():
 	ocoords = {":x" : random.choice(range(x)), ":y" : random.choice(range(y))}
 	world[ocoords[":y"]][ocoords[":x"]][":state"] = u"\u001b[38;5;124mX" + u"\u001b[0m   "   
@@ -32,16 +28,16 @@ def setinitialdisplay():
 
 def countplacesby(key, value):										#COUNT by {key : value}
 	counter = 0
-	for y in range(0, place_num[1]):
-                for x in range(0, place_num[0]):
+	for y in range(0, world_dims[1]):
+                for x in range(0, world_dims[0]):
 			if  world[y][x][key] == value:
         			counter += 1                     
 	return counter 	
 
 
 def presentworld():
-	for y in range(0, place_num[1]):
-        	for x in range(0, place_num[0]):
+	for y in range(0, world_dims[1]):
+        	for x in range(0, world_dims[0]):
 			todisplay = str(world[y][x][":display"])
 			sys.stdout.write(todisplay.ljust(4))
 		print ""
@@ -55,8 +51,8 @@ def setrelationincoords(coords, key, value):
 	world[coords[1]][coords[0]][key] = value
 	
 def getcoords(place):											#Search by STRUCT, return COORD
-	for y in range(0, place_num[0]):
-		for x in range(0, place_num[1]):
+	for y in range(0, world_dims[0]):
+		for x in range(0, world_dims[1]):
 			if place == world[y][x]:
 				return x, y	
 def getplace(coords):
@@ -84,21 +80,20 @@ TEST = []
 
 
 def numbering(origins, maxdistance):
-        TEST.append (origins)
-        try:
-                for origin in origins:
-                        recurcoords = nebendecoords(origin)
-                        map(functools.partial(setrelationincoords, key=":distance", value=maxdistance), recurcoords)
-                setinitialdisplay()											#SET WHAT TO RENDER base on DISTANCES
-	        presentworld()												#RENDER
-	        time.sleep(1)
-	        os.system("clear")
-	        if countplacesby(":distance", "") > 0:
-		        return numbering(recurcoords, maxdistance + 1) 
-	        else:
-		        return maxdistance, recurcoords
-        except UnboundLocalError:
-                print TEST
+        recurcoords = []
+        for origin in origins:
+                print origin
+                recurcoords.append(nebendecoords(origin))
+                map(functools.partial(setrelationincoords, key=":disTance", value=maxdistance), nebendecoords(origin))
+        #exit()
+        setinitialdisplay()											#SET WHAT TO RENDER base on DISTANCES
+	presentworld()												#RENDER
+	time.sleep(1)
+	os.system("clear")
+	if countplacesby(":distance", "") > 0:
+		return numbering(recurcoords, maxdistance + 1) 
+	else:
+		return maxdistance, recurcoords
         
 def poprelationincoords(coords, key): 
 	return world[coords[1]][coords[0]].pop(key)
