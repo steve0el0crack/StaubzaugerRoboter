@@ -22,7 +22,7 @@
   )
 
 
-;;since every index is positive, and the movements are only diagonal. Its just a matter of math.
+;;since every index is positive, and there are no diagonal movements. Its just a matter of math.
 (defn number-places-around
   [start  
    universe
@@ -41,6 +41,27 @@
        universe)
   )
 
+;;numbering made manually
+(def first-numbering (number-places-around setorigin world 1))
+({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
+ {:x 0, :y 1, :state nil, :distance nil, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance nil, :display nil}
+ {:x 0, :y 2, :state nil, :distance nil, :display nil} {:x 1, :y 2, :state nil, :distance nil, :display nil} {:x 2, :y 2, :state nil, :distance nil, :display nil})
+
+(def second-numbering (number-places-around {:x 0 :y 0 :state nil :distance 1 :display nil} first-numbering 2))
+(def third-numbering  (number-places-around {:x 2 :y 0 :state nil :distance 1 :display nil} second-numbering 2))
+(def fourth-numbering (number-places-around {:x 1 :y 1 :state nil :distance 1 :display nil} third-numbering 2))
+({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
+ {:x 0, :y 1, :state nil, :distance 2, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance 2, :display nil}
+ {:x 0, :y 2, :state nil, :distance nil, :display nil} {:x 1, :y 2, :state nil, :distance 2, :display nil} {:x 2, :y 2, :state nil, :distance nil, :display nil})
+
+(def fifth-numbering (number-places-around {:x 0 :y 1 :state nil :distance 2 :display nil} fourth-numbering 3))
+(def sixth-numbering (number-places-around {:x 2 :y 1 :state nil :distance 2 :display nil} fifth-numbering 3))
+({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
+ {:x 0, :y 1, :state nil, :distance 2, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance 2, :display nil}
+ {:x 0, :y 2, :state nil, :distance 3, :display nil} {:x 1, :y 2, :state nil, :distance 2, :display nil} {:x 2, :y 2, :state nil, :distance 3, :display nil})
+
+
+;;recursive tools in Clojure
 (defn factorial [number]
   (loop [x number,
          result 1]
@@ -49,26 +70,25 @@
       (recur (- x 1) (* x result)))
     )
   )
-
 (factorial 10)
 
-
-(def first-numbering (number-places-around setorigin world 1))
-(def second-numbering (number-places-around {:x 0 :y 0 :state nil :distance 1 :display nil} first-numbering 2))
-
-  
-
-
-(= 0 nil)
- 
-
-(filter (fn [place] (if = (:x place) (:x setorigin))) world)
+(defn all-numbered?
+  [universe]
+  (if (= (count (filter (fn [place] (= (:distance place) nil)) universe)) 0)
+    true
+    false)
+  )
 
 
-;;for making the numbering, we need the places to number!
-(defn first-step-to-numbering
-  [coords] ;;coords are {:x _ :y _ }
-  (let [x (:x coords)
-        y (:y coords)]
-    (filter ()
-            world)))  
+(def number
+  (fn
+    
+    [universe
+     number])
+  (loop []
+    (if (= all-numbered? false)
+      (recur )  ;;There are still unnumbered places
+      universe))  ;;Give back the universe structure that was build until that moment
+  )
+
+
