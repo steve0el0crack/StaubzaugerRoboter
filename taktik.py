@@ -1,101 +1,124 @@
+import functools
 import random
 import sys
 import os
 import time
 
-#MAXIMAL DIMENSIONS of the world in terminal -----------> 35 x 35
-
-x = int(sys.argv[1])
-y = int(sys.argv[2])
-place_num = [x, y]
-
-world = []
-for reihe in range(0, place_num[0]):
-        world.append([])
-        for place in range(0, place_num[1]):
-                world[reihe].append({":x": place, ":y": reihe, ":H" : 0, ":index" : "", ":display" :  "-"})
-		
-world[random.randint(0, 3) - 1][random.randint(0, 3) - 1][":index"] = 0
+def presentworld (world):
+        map (lambda place: sys.stdout.write (str (place) + "\n"), world)
 
 
-def setdisplay():
-	for y in range(0, place_num[0]):
-                for x in range(0, place_num[1]):
-			if  world[y][x][":index"] != "":
-				world[y][x][":display"] = world[y][x][":index"]  
-def countfreeplaces(key, value):
-	counter = 0
-	for y in range(0, place_num[0]):
-                for x in range(0, place_num[1]):
-			if  world[y][x][key] == value:
-        			counter += 1                     
-	return counter 	
+world_dims = {":x" : int(sys.argv[1]), ":y" : int(sys.argv[2])}
+world = [{":x" : x, ":y" : y, ":state" : "", ":distance" : "", ":display" : ""} for y in range(world_dims[":y"]) for x in range(world_dims[":x"])]
 
+def setrelationincoords(coords, key, value):
+        for place in world:
+                if place[":x"] == coords [":x"] and place [":y"] == coords [":y"]:
+                        place [key] = value
+
+def setorigin():
+	origin_coords = {":x" : random.choice(range(x)), ":y" : random.choice(range(y))}
+        map ( lambda pair:
+              setrelationincoords (origin_coords, pair [":key"], pair [":value"] ),
+              [{":key" : ":state", ":value" : u"\u001b[38;5;124mX" + u"\u001b[0m   "},
+               {":key" : ":distance", ":value" : 0}])
+        return origin_coords
+origin_coords = setorigin()
+
+def countplacesby(key, value):										#COUNT by {key : value}
+        return len (filter (lambda place: value == place[key], world))
+
+def setnumberingdisplay():
+        for place in world:
+                place [":display"] = place [":distance"]
+def setstatedisplay():
+        for place in world:
+                if place [":state"] != "":
+                        place [":display"] = place [":state"]
 
 def presentworld():
-	for y in range(0, place_num[0]):
-        	for x in range(0, place_num[1]):
-			todisplay = str(world[y][x][":display"])
-			sys.stdout.write(todisplay.ljust(4))
-		print ""
+        for i, place in enumerate (world):
+                todisplay = str (place[":display"])
+                sys.stdout.write(todisplay.ljust(4))
+                if ((i + 1) %  world_dims [":x"]) == 0 and i != 0:
+                        print ""
+        print ""
+       
+def searchplacebytworelations(xkey, ykey, xval, yval):
+        return filter (lambda place: xval == place [xkey] and yval == place[ykey], world)
 
-def searchplace(xkey, ykey, xval, yval):
-	for reihe in world:
-		for place in reihe:
-			if place[xkey] == xval and place[ykey] == yval:
-				  return place 
-def setindex(coords, value): 
-	world[coords[1]][coords[0]][":index"] = value
-	
-def searchinworld(place):
-	for y in range(0, place_num[0]):
-		for x in range(0, place_num[1]):
-			if place == world[y][x]:
-				return x, y	
+def searchplacebycoords(coords):
+        return filter (lambda place: place [":x"] == coords [":x"] and place [":y"] == coords [":y"], world)[0]
 
-def searchindex(value):
-	for reihe in world:
-                for place in reihe:
-                        if place[":index"] == value:
-                                  return place    
+def searchplacebyonerelation(key, value):												#Return STRUCT
+	return filter (lambda place: val == place[key], world)
 
 
 
-def numbering(origins, layer):
-	recurcoords = []
-	for origin in origins:
-		x = origin[0]
-		y = origin[1]
-		for i in [1, -1]:
-			coords = searchinworld(searchplace(":x", ":y", x + i, y))
-			if coords != None and searchplace(":x", ":y", x + i, y)[":index"] ==  "":
-				setindex(coords, layer)
-				recurcoords.append(coords)		
-		for i in [1, -1]:
-			coords = searchinworld(searchplace(":x", ":y", x, y + i))
-			if coords != None and searchplace(":x", ":y", x, y + i)[":index"] ==  "":
-				setindex(coords, layer)	
-				recurcoords.append(coords)	
-	setdisplay()
-	presentworld()
-	time.sleep(0.2)
+def getdistancebetweencoords (coords1, coords2):
+        return {":coords" : coords2, ":distance" : abs(coords1 [":x"] - coords2 [":x"]) + abs(coords1[":y"] - coords2[":y"])} 
+
+def getnebendecoords(origincoords):
+        return filter (lambda data: data [":distance"] == 1,
+                       map (lambda place: getdistancebetweencoords (origincoords, {":x" : place [":x"], ":y" : place [":y"]}),
+                            world))
+
+def not_numbered (coords):
+         if searchplacebycoords (coords) [":distance"] == "":
+                 return True
+         else:
+                 return False
+
+def numbering(origins, maxdistance):
+        recurcoords = []
+        for origin in origins:
+                map (lambda data: recurcoords.append (data [":coords"]),
+                     filter (lambda data: not_numbered(data [":coords"]),
+                             getnebendecoords (origin)))
+                map(lambda data: setrelationincoords (data [":coords"], ":distance", maxdistance),
+                    filter(lambda data: not_numbered(data[":coords"]),
+                           getnebendecoords(origin)))
+        setnumberingdisplay()						       #SET WHAT TO RENDER base on DISTANCES
+        setstatedisplay ()
+        presentworld()							      	#RENDER
+	time.sleep(0.1)
 	os.system("clear")
-	if countfreeplaces(":index", "") > 0:
-		#print "*****************"	
-		#presentworld()
-		numbering(recurcoords, layer + 1) 
-	
-
-#presentworld()
-
-numbering([searchinworld(searchindex(0))], 1)
-
-presentworld()
+	if countplacesby(":distance", "") > 0:
+		return numbering(recurcoords, maxdistance + 1) 
+	else:
+                return maxdistance, recurcoords
 
 
+def poprelationincoords(coords, key): 
+	return searchplacebycoords (coords).pop(key)
+        
+def move(origin_coords, cond):                             #RECURSIVE -----> ONLY one COORD NEEDED, ONLY 1 ELEMENT TO MOVE (X)    
 
+        #SETING DESTINY
+        maxdistance, goalcoords = numbering([origin_coords], 1)
+	presentworld()
 
+        #SETING START
+        start = origin_coords
+        
+        
+	#RANDOM MOVEMENT ------> NIKITA
+        def randmovement(currentcoords):
 
-
+                inmediategoal = random.choice(map (lambda data: data [":coords"], getnebendecoords(currentcoords)))
+                print "INMEDIATE RANDOM GOAL"
+                print inmediategoal
+                
+                setrelationincoords(inmediategoal, ":display", poprelationincoords(currentcoords, ":display"))
+                setrelationincoords(currentcoords, ":display", u"\u001b[38;5;2mX" + u"\u001b[0m   ")
+                os.system("clear")
+                presentworld()
+                time.sleep(0.1)
+                if countplacesby(":display", u"\u001b[38;5;2mX" + u"\u001b[0m   ") < len (world) - 1:
+                        return randmovement(inmediategoal)
+                else:
+                        return "ONE CYCLE"
+        randmovement(start)
+move(origin_coords, 0)
 
 
