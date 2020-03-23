@@ -25,7 +25,7 @@ public class Visualizer extends JFrame {
                 for (World.Field f : fields) {
                     if (f.coords[0] == x && f.coords[1] == y) {
                         tiles[x][y].indexLabel.setText(Integer.toString(f.index));
-                        tiles[x][y].setBackground(new Color(f.index * 17, f.index * 17, f.index * 17));
+                        tiles[x][y].setBackground(new Color(f.index * 10, f.index * 10, f.index * 10));
                     }
                 }
                 add(tiles[x][y]);

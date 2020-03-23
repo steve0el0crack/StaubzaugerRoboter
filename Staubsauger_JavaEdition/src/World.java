@@ -31,6 +31,7 @@ public class World {
             }
             System.out.println();
         }
+        System.out.println("\n");
     }
 
     public class Field {

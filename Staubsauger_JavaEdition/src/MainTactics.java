@@ -13,8 +13,6 @@ public class MainTactics {
 
         numbering(searchByDistance(0), 1);
 
-        world.present();
-
         Visualizer visualizer = new Visualizer(world.fields);
         visualizer.repaint();
     }
@@ -43,20 +41,23 @@ public class MainTactics {
     }
 
     private static World.Field searchField(int x, int y) {
-        World.Field field = world.fields.get(0);
 
         for (World.Field f : world.fields) {
             if (f.coords[0] == x) {
                 if (f.coords[1] == y) {
-                    field = f;
+                    return f;
                 }
             }
         }
 
-        return field;
+        return null;
     }
 
     private static int[] searchInWorld(World.Field field) {
+        if (field == null) {
+            return null;
+        }
+
         int[] coords = new int[2];
 
         for (World.Field f : world.fields) {
@@ -89,7 +90,7 @@ public class MainTactics {
             int y = origin[1];
 
 
-            for (int i = -1; i <= 1; i++) {
+            for (int i = -1; i < 1; i++) {
                 if (i == 0) i = 1;
 
                 // for x-values
