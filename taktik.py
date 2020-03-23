@@ -6,6 +6,7 @@ import time
 
 x = int(sys.argv[1])
 y = int(sys.argv[2])
+#world_dims = {":x" : int(sys.argv[1]), ":y" : int(sys.argv[2])}
 place_num = [x, y]
 
 world = []
@@ -13,7 +14,12 @@ for reihe in range(0, place_num[0]):
         world.append([])
         for place in range(0, place_num[1]):
                 world[reihe].append({":x": place, ":y": reihe, ":state" : "", ":distance" : "", ":display" :  ""})	#WORLD
-			
+"""
+world = [{":x" : x, ":y" : y, ":state" : "", ":distance" : "", ":display" : ""} for y in world_dims[":y"] for x in world_dims[":x"]] 
+
+"""
+
+                
 def setorigin():
 	ocoords = {":x" : random.choice(range(x)), ":y" : random.choice(range(y))}
 	world[ocoords[":y"]][ocoords[":x"]][":state"] = u"\u001b[38;5;124mX" + u"\u001b[0m   "   

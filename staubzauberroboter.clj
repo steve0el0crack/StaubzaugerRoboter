@@ -71,6 +71,10 @@
     )
   )
 (factorial 10)
+(< 1 10)
+(nth [1 2 3] 0)
+(count [1 2 3])
+
 
 (defn all-numbered?
   [universe]
@@ -79,16 +83,48 @@
     false)
   )
 
+(defn get-numbered
+  [universe
+   distance]
+  (let [d distance
+        u universe]
+    (filter (fn [place] (= (:distance place) d)) u)))
+
+(get-numbered first-numbering 1)
+
+
+
+
+(loop [originindex 0
+             origins (get-numbered (number-places-around setorigin n) n)  ;;for the very first NUMBERING (0 ---> 1)
+             originslength (count origins)]
+        (if (> (count origins) 0)         
+          (recur (number-places-around (first o)) (n) (rest get-numbered n)))
+        )   ;;NEXT ORIGIN... SAME DISTANCE
+
+
+
+
+
 
 (def number
   (fn
-    
     [universe
-     number])
-  (loop []
-    (if (= all-numbered? false)
-      (recur )  ;;There are still unnumbered places
-      universe))  ;;Give back the universe structure that was build until that moment
-  )
+     number
+     origins])
+  (loop [u universe  ;;will be generated through each recurssive iteration (upon the previous one)
+         n 1  ;;the first iteration will generate distances 1 unit ahead
+         o origins]  
+    (if (= all-numbered? false)  ;;MOST IMPORTANT CONDITION ...There are still unnumbered places?
+      (loop [originindex 0
+             origins (get-numbered (number-places-around setorigin n) n)  ;;for the very first NUMBERING (0 ---> 1)
+             originslength (count origins)]
+        (if (> (count origins) 0)         
+          (recur (number-places-around (first o)) (n) (rest get-numbered n)))
+        )   ;;NEXT ORIGIN... SAME DISTANCE
+      (;;Give back the universe structure that was build until that moment
 
 
+       )))
+
+(recur (number-places-around (first o)) (+ n 1) (get-numbered n))  ;;origins must be a collections of points from which number-place-around must be done...NEXT DISTANCE
