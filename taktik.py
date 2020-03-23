@@ -81,7 +81,7 @@ def numbering(origins, maxdistance):
         setnumberingdisplay()						       #SET WHAT TO RENDER base on DISTANCES
         setstatedisplay ()
         presentworld()							      	#RENDER
-	time.sleep(1)
+	time.sleep(0.1)
 	os.system("clear")
 	if countplacesby(":distance", "") > 0:
 		return numbering(recurcoords, maxdistance + 1) 
@@ -105,7 +105,7 @@ def move(origin_coords, cond):                             #RECURSIVE -----> ONL
 	#RANDOM MOVEMENT ------> NIKITA
         def randmovement(currentcoords):
 
-                inmediategoal = random.choice(map (lambda data: data [":coords"], getnebendecoords(start)))
+                inmediategoal = random.choice(map (lambda data: data [":coords"], getnebendecoords(currentcoords)))
                 print "INMEDIATE RANDOM GOAL"
                 print inmediategoal
                 
@@ -113,8 +113,8 @@ def move(origin_coords, cond):                             #RECURSIVE -----> ONL
                 setrelationincoords(currentcoords, ":display", u"\u001b[38;5;2mX" + u"\u001b[0m   ")
                 os.system("clear")
                 presentworld()
-                time.sleep(1)
-                if getplace(currentcoords)[0] [":distance"] != maxdistance:
+                time.sleep(0.1)
+                if countplacesby(":display", u"\u001b[38;5;2mX" + u"\u001b[0m   ") < len (world) - 1:
                         return randmovement(inmediategoal)
                 else:
                         return "ONE CYCLE"
