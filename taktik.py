@@ -4,104 +4,100 @@ import sys
 import os
 import time
 
-x = int(sys.argv[1])
-y = int(sys.argv[2])
-world_dims = {":x" : x, ":y" : y}
+def presentworld (world):
+        map (lambda place: sys.stdout.write (str (place) + "\n"), world)
 
-world = [{":x" : x, ":y" : y, ":state" : "", ":distance" : "", ":display" : ""} for y in world_dims[":y"] for x in world_dims[":x"]]
+
+world_dims = {":x" : int(sys.argv[1]), ":y" : int(sys.argv[2])}
+world = [{":x" : x, ":y" : y, ":state" : "", ":distance" : "", ":display" : ""} for y in range(world_dims[":y"]) for x in range(world_dims[":x"])]
+
+def updateplace (x, y, key, value):
+        for place in world:
+                if place [":x"] == x and place [":y"] == y:
+                        place [key] = value
 
 def setorigin():
-	ocoords = {":x" : random.choice(range(x)), ":y" : random.choice(range(y))}
-	world[ocoords[":y"]][ocoords[":x"]][":state"] = u"\u001b[38;5;124mX" + u"\u001b[0m   "   
-	world[ocoords[":y"]][ocoords[":x"]][":distance"] = 0
-	return ocoords
-ocoords = setorigin()
-
-def setinitialdisplay():
-	for yi, reihe in enumerate(world):								#DISPLAY ----> RENDERING
-                for xi, place in enumerate(reihe):
-			if  place[":distance"] != "":
-				place[":display"] = place[":distance"]					#NORMAL PLACE ------> DISTANCE   
-			if  place[":distance"] == 0:
-				place[":display"] = place[":state"]						#ORIGIN -----> X 		
-
+	origin_coords = {":x" : random.choice(range(x)), ":y" : random.choice(range(y))}
+        map ( lambda pair: updateplace (origin_coords [":x"], origin_coords [":y"], pair [":key"], pair [":value"] ), [{":key" : ":state", ":value" : u"\u001b[38;5;124mX" + u"\u001b[0m   "}, {":key" : ":distance", ":value" : 0}])
+        return origin_coords
+origin_coords = setorigin()
+print "ORIGIN_COORDS"
+print origin_coords
 
 def countplacesby(key, value):										#COUNT by {key : value}
-	counter = 0
-	for y in range(0, world_dims[1]):
-                for x in range(0, world_dims[0]):
-			if  world[y][x][key] == value:
-        			counter += 1                     
-	return counter 	
+        return len (filter (lambda place: value == place[key], world))
 
+def setinitialdisplay():
+        for place in world:
+                place [":display"] = place [":distance"]
 
 def presentworld():
-	for y in range(0, world_dims[1]):
-        	for x in range(0, world_dims[0]):
-			todisplay = str(world[y][x][":display"])
-			sys.stdout.write(todisplay.ljust(4))
-		print ""
+        for i, place in enumerate (world):
+                todisplay = str (place[":display"])
+                sys.stdout.write(todisplay.ljust(4))
+                if ((i + 1) %  world_dims [":x"]) == 0 and i != 0:
+                        print ""
+        print ""
+       
+def searchplacebytworelations(xkey, ykey, xval, yval):
+        return filter (lambda place: xval == place [xkey] and yval == place[ykey], world)
 
-def searchplacebyrelation(xkey, ykey, xval, yval):
-	for reihe in world:
-		for place in reihe:
-			if place[xkey] == xval and place[ykey] == yval:
-				  return place 
-def setrelationincoords(coords, key, value): 
-	world[coords[1]][coords[0]][key] = value
-	
-def getcoords(place):											#Search by STRUCT, return COORD
-	for y in range(0, world_dims[0]):
-		for x in range(0, world_dims[1]):
-			if place == world[y][x]:
-				return x, y	
-def getplace(coords):
-        return [place for yi, element in enumerate(world) for xi, place in enumerate(element) if (xi, yi) == coords]
+def searchplacebycoords(coords):
+        return filter (lambda place: place [":x"] == coords [":x"] and place [":y"] == coords [":y"], world)[0]
 
-def searchplaceby(key, value):												#Return STRUCT
-	return [place for reihe in world for place in reihe if place[key] == value]
+def searchplacebyonerelation(key, value):												#Return STRUCT
+	return filter (lambda place: val == place[key], world)
 
-def nebendecoords(origincoord):
-        nebendecoords = []
-       	for i in [1, -1]:
-                ynext = searchplacebyrelation(":x", ":y", origincoord[0], origincoord[1] + i)
-                xnext = searchplacebyrelation (":x", ":y", origincoord [0] + i, origincoord [1])
-                ycoord = getcoords(ynext)
-                xcoord = getcoords(xnext)
-                        
-                if ycoord != None and ynext[":distance"] ==  "":
-                        nebendecoords.append(ycoord)	
-                if xcoord != None and xnext[":distance"] ==  "":
-                        nebendecoords.append(xcoord)		
 
-        return nebendecoords
+def setrelationincoords(coords, key, value):
+        for place in world:
+                if place[":x"] == coords [":x"] and place [":y"] == coords [":y"]:
+                        place [key] = value
 
-TEST = []
+def getdistancebetweencoords (coords1, coords2):
+        return {":coords" : coords2, ":distance" : abs(coords1 [":x"] - coords2 [":x"]) + abs(coords1[":y"] - coords2[":y"])} 
 
+def getnebendecoords(origincoords):
+        return filter (lambda data: data [":distance"] == 1,
+                       map (lambda place: getdistancebetweencoords (origincoords, {":x" : place [":x"], ":y" : place [":y"]}),
+                            world))
+
+def not_numbered (coords):
+         if searchplacebycoords (coords) [":distance"] == "":
+                 return True
+         else:
+                 return False
 
 def numbering(origins, maxdistance):
         recurcoords = []
         for origin in origins:
-                print origin
-                recurcoords.append(nebendecoords(origin))
-                map(functools.partial(setrelationincoords, key=":disTance", value=maxdistance), nebendecoords(origin))
-        #exit()
-        setinitialdisplay()											#SET WHAT TO RENDER base on DISTANCES
-	presentworld()												#RENDER
+                map (lambda data: recurcoords.append (data [":coords"]),
+                     filter (lambda data: not_numbered(data [":coords"]),
+                             getnebendecoords (origin)))
+                map(lambda data: setrelationincoords (data [":coords"], ":distance", maxdistance),
+                    filter(lambda data: not_numbered(data[":coords"]),
+                           getnebendecoords(origin)))
+        setinitialdisplay()						       #SET WHAT TO RENDER base on DISTANCES
+        presentworld()							      	#RENDER
 	time.sleep(1)
 	os.system("clear")
 	if countplacesby(":distance", "") > 0:
 		return numbering(recurcoords, maxdistance + 1) 
 	else:
-		return maxdistance, recurcoords
+                return maxdistance, recurcoords
+
+
+numbering([origin_coords], 1)
+
+
         
 def poprelationincoords(coords, key): 
 	return world[coords[1]][coords[0]].pop(key)
         
-def move(ocoords, cond):                                             #RECURSIVE -----> ONLY one COORD NEEDED, ONLY 1 ELEMENT TO MOVE (X)    
+def move(origin_coords, cond):                                             #RECURSIVE -----> ONLY one COORD NEEDED, ONLY 1 ELEMENT TO MOVE (X)    
 
         #SETING DESTINY
-        maxdistance, goalcoords = numbering([getcoords(searchplaceby(":distance", 0)[0])], 1)
+        maxdistance, goalcoords = numbering([origin_coords], 1)
 	presentworld()
 
         #SETING START
@@ -121,36 +117,6 @@ def move(ocoords, cond):                                             #RECURSIVE 
                 else:
                         return "ONE CYCLE"
         randmovement(start)
-move(0, 0)
-
-"""	
-	if coords[":y"] + change[1] == ydim - 1:                        #Y EDGE
-		nextcoords = {":x" : coords[":x"], ":y" : 0}
-
-	elif coords[":x"] + change[0] == xdim + 1:                      #X EDGE
-		nextcoords = {":x" : 0, ":y" : coords[":y"]}
-	else:
-		nextcoords = {":x" : coords[":x"] + change[0] , ":y" : coords[":y"] + change[1]}
-
-	if detectlampe(getstruct(coords, world)) == "red" or "auto" in getstruct(nextcoords, world).keys():             #TRAFFIC LIGHT
-	    continue
-	else:
-		auto = getstruct(coords, world).pop("auto")
-		getstruct(nextcoords, world)["auto"] = auto
-		recurindex.append(nextcoords)
-		time.sleep(1)
-        if cond == 0:
-                os.system("clear")
-                paintworld()
-                print "MAKED"
-                return ["a"]
-        else:
-                sys.stdout.write("RECURSIVE!")
-                os.system("clear")
-                move(recurindex, cond - 1)
-"""
-
-
-
+#move(origin_coords, 0)
 
 
