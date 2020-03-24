@@ -6,12 +6,12 @@
 
 ;;world created with all positive values
 (defstruct place :x :y :state :distance :display)
-(def world (for [y (range (:y world-dims)) x (range (:x world-dims))] (struct place x y)))
+(def initialworld (for [y (range (:y world-dims)) x (range (:x world-dims))] (struct place x y)))
 
 ;;origin seted
 (def setorigin
   (assoc
-   (nth world (rand (+ (:y world-dims) 1)))
+   (nth initialworld (rand (+ (:y world-dims) 1)))
    :state "X"
    :distance 0))
 
@@ -42,23 +42,15 @@
   )
 
 ;;numbering made manually
-(def first-numbering (number-places-around setorigin world 1))
-({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
- {:x 0, :y 1, :state nil, :distance nil, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance nil, :display nil}
- {:x 0, :y 2, :state nil, :distance nil, :display nil} {:x 1, :y 2, :state nil, :distance nil, :display nil} {:x 2, :y 2, :state nil, :distance nil, :display nil})
+(def first-numbering (number-places-around setorigin initialworld 1))
 
 (def second-numbering (number-places-around {:x 0 :y 0 :state nil :distance 1 :display nil} first-numbering 2))
 (def third-numbering  (number-places-around {:x 2 :y 0 :state nil :distance 1 :display nil} second-numbering 2))
 (def fourth-numbering (number-places-around {:x 1 :y 1 :state nil :distance 1 :display nil} third-numbering 2))
-({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
- {:x 0, :y 1, :state nil, :distance 2, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance 2, :display nil}
- {:x 0, :y 2, :state nil, :distance nil, :display nil} {:x 1, :y 2, :state nil, :distance 2, :display nil} {:x 2, :y 2, :state nil, :distance nil, :display nil})
+
 
 (def fifth-numbering (number-places-around {:x 0 :y 1 :state nil :distance 2 :display nil} fourth-numbering 3))
 (def sixth-numbering (number-places-around {:x 2 :y 1 :state nil :distance 2 :display nil} fifth-numbering 3))
-({:x 0, :y 0, :state nil, :distance 1, :display nil} {:x 1, :y 0, :state "X", :distance 0, :display nil} {:x 2, :y 0, :state nil, :distance 1, :display nil}
- {:x 0, :y 1, :state nil, :distance 2, :display nil} {:x 1, :y 1, :state nil, :distance 1, :display nil} {:x 2, :y 1, :state nil, :distance 2, :display nil}
- {:x 0, :y 2, :state nil, :distance 3, :display nil} {:x 1, :y 2, :state nil, :distance 2, :display nil} {:x 2, :y 2, :state nil, :distance 3, :display nil})
 
 
 ;;recursive tools in Clojure
@@ -76,6 +68,8 @@
 (count [1 2 3])
 
 
+
+
 (defn all-numbered?
   [universe]
   (if (= (count (filter (fn [place] (= (:distance place) nil)) universe)) 0)
@@ -91,40 +85,27 @@
     (filter (fn [place] (= (:distance place) d)) u)))
 
 (get-numbered first-numbering 1)
+(get-numbered sixth-numbering 3)
+
+
+(all-numbered? first-numbering)
+(all-numbered? sixth-numbering)
+
+
+(def world-numbered 
+  (loop
+      [origin setorigin
+       distance 1
+       currentworld (number-places-around origin initialworld 1)
+       recurcoords (get-numbered currentworld distance)]
+    (if (all-numbered? currentworld)
+      currentworld
+      (recur (first recurcoords)
+             (+ distance 1)
+             (number-places-around (first recurcoords) currentworld (+ distance 1))
+             (rest recurcoords))
+      )
+    ))
 
 
 
-
-(loop [originindex 0
-             origins (get-numbered (number-places-around setorigin n) n)  ;;for the very first NUMBERING (0 ---> 1)
-             originslength (count origins)]
-        (if (> (count origins) 0)         
-          (recur (number-places-around (first o)) (n) (rest get-numbered n)))
-        )   ;;NEXT ORIGIN... SAME DISTANCE
-
-
-
-
-
-
-(def number
-  (fn
-    [universe
-     number
-     origins])
-  (loop [u universe  ;;will be generated through each recurssive iteration (upon the previous one)
-         n 1  ;;the first iteration will generate distances 1 unit ahead
-         o origins]  
-    (if (= all-numbered? false)  ;;MOST IMPORTANT CONDITION ...There are still unnumbered places?
-      (loop [originindex 0
-             origins (get-numbered (number-places-around setorigin n) n)  ;;for the very first NUMBERING (0 ---> 1)
-             originslength (count origins)]
-        (if (> (count origins) 0)         
-          (recur (number-places-around (first o)) (n) (rest get-numbered n)))
-        )   ;;NEXT ORIGIN... SAME DISTANCE
-      (;;Give back the universe structure that was build until that moment
-
-
-       )))
-
-(recur (number-places-around (first o)) (+ n 1) (get-numbered n))  ;;origins must be a collections of points from which number-place-around must be done...NEXT DISTANCE
