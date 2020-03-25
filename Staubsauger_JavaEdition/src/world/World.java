@@ -1,3 +1,5 @@
+package world;
+
 import java.util.ArrayList;
 
 public class World {
@@ -23,27 +25,13 @@ public class World {
 
                 for (Field f : fields) {
 
-                    if (f.coords[0] == x && f.coords[1] == y) {
+                    if (f.coord[0] == x && f.coord[1] == y) {
                         System.out.print(f.index + "  ");
                     }
                 }
 
             }
             System.out.println();
-        }
-        System.out.println("\n");
-    }
-
-    public class Field {
-        public int[] coords = new int[2];
-        public boolean blocked = false;
-        public int index;
-
-        Field(int pX, int pY, boolean pBlocked, int pIndex) {
-            coords[0] = pX;
-            coords[1] = pY;
-            blocked = pBlocked;
-            index = pIndex;
         }
     }
 }

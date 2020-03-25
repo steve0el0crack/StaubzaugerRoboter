@@ -1,0 +1,119 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import world.*;
+import visuals.*;
+
+public class MainTactics {
+    private static World world;
+    private static Random rng = new Random();
+
+    // main process
+    public static void main(String[] args) {
+        world = new World(10, 10);
+
+        setOrigin();
+
+        numbering(searchByDistance(0), 1);
+
+        world.present();
+
+        new Visualizer();
+    }
+
+    private static Coordinate setOrigin() {
+        world.fields.get(rng.nextInt(world.fields.size())).index = 0;
+        return world.fields.get(rng.nextInt(world.fields.size())).coord;
+    }
+
+    private static void setIndex(Coordinate coord, int value) {
+        for (int i = 0; i < world.fields.size(); i++) {
+            if (world.fields.get(i).coord == coord) {
+                world.fields.get(i).index = value;
+            }
+        }
+    }
+
+    private static int countPlaces(int pIndex) {
+        int counter = 0;
+        for (world.Field f : world.fields) {
+            if (f.index == pIndex) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    private static world.Field searchField(int x, int y) {
+        world.Field field = world.fields.get(0);
+
+        for (world.Field f : world.fields) {
+            if (f.coord.x == x) {
+                if (f.coord.y == y) {
+                    field = f;
+                }
+            }
+        }
+
+        return field;
+    }
+
+    private static Coordinate searchInWorld(world.Field field) {
+        Coordinate coord = new Coordinate(0, 0);
+
+        for (world.Field f : world.fields) {
+            if (f == field) {
+                coord = f.coord;
+            }
+        }
+
+        return coord;
+    }
+
+    private static ArrayList<Coordinate> searchByDistance(int value) {
+        ArrayList<world.Coordinate> coords = new ArrayList<>();
+
+        for (world.Field f : world.fields) {
+            if (f.index == value) {
+                coords.add(f.coord);
+            }
+        }
+
+        return coords;
+    }
+
+    // recursive method
+    private static void numbering(ArrayList<Coordinate> origins, int layer) {
+        ArrayList<Coordinate> recurcoords = new ArrayList<>();
+
+        for (Coordinate origin : origins) {
+            int x = origin.x;
+            int y = origin.y;
+
+
+            for (int i = -1; i <= 1; i++) {
+                if (i == 0) i = 1;
+
+                // for x-values
+                Coordinate coord = searchInWorld(searchField(x + i, y));
+                if (coord != null && searchField(x + i, y).index == -1) {
+                    setIndex(coord, layer);
+                    recurcoords.add(coord);
+                }
+
+                // for y-values
+                coord = searchInWorld(searchField(x, y + i));
+                if (coord != null && searchField(x, y + i).index == -1) {
+                    setIndex(coord, layer);
+                    recurcoords.add(coord);
+                }
+            }
+        }
+
+        if (countPlaces(-1) > 0) {
+            numbering(recurcoords, layer+1);
+        }
+    }
+}
