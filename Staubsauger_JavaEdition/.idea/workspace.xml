@@ -2,18 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1388071-2f04-48d8-be92-f091ffc6f72f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/world/Coordinate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Field.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/MainTactics.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Tile.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Visualizer.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/World.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Field.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/Field.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MainTactics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/MainTactics.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Tile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/Tile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Visualizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/visuals/Visualizer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/World.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/MainTactics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/MainTactics.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

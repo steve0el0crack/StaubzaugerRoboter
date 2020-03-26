@@ -1,6 +1,7 @@
 package main;
 
 import visuals.Visualizer;
+import world.Coordinate;
 import world.Field;
 import world.World;
 
@@ -23,14 +24,14 @@ public class MainTactics {
         visualizer.repaint();
     }
 
-    private static int[] setOrigin() {
+    private static Coordinate setOrigin() {
         world.fields.get(rng.nextInt(world.fields.size())).index = 0;
         return world.fields.get(rng.nextInt(world.fields.size())).coord;
     }
 
-    private static void setIndex(int[] coords, int value) {
+    private static void setIndex(Coordinate coord, int value) {
         for (int i = 0; i < world.fields.size(); i++) {
-            if (world.fields.get(i).coord == coords) {
+            if (world.fields.get(i).coord == coord) {
                 world.fields.get(i).index = value;
             }
         }
@@ -59,24 +60,24 @@ public class MainTactics {
         return null;
     }
 
-    private static int[] searchInWorld(Field field) {
+    private static Coordinate searchInWorld(Field field) {
         if (field == null) {
             return null;
         }
 
-        int[] coords = new int[2];
+        Coordinate coord;
 
         for (Field f : world.fields) {
             if (f == field) {
-                coords = f.coord;
+                return f.coord;
             }
         }
 
-        return coords;
+        return null;
     }
 
-    private static ArrayList<int[]> searchByDistance(int value) {
-        ArrayList<int[]> coords = new ArrayList<>();
+    private static ArrayList<Coordinate> searchByDistance(int value) {
+        ArrayList<Coordinate> coords = new ArrayList<>();
 
         for (Field f : world.fields) {
             if (f.index == value) {
@@ -88,19 +89,19 @@ public class MainTactics {
     }
 
     // recursive method
-    private static void numbering(ArrayList<int[]> origins, int layer) {
-        ArrayList<int[]> recurcoords = new ArrayList<>();
+    private static void numbering(ArrayList<Coordinate> origins, int layer) {
+        ArrayList<Coordinate> recurcoords = new ArrayList<>();
 
-        for (int[] origin : origins) {
-            int x = origin[0];
-            int y = origin[1];
+        for (Coordinate origin : origins) {
+            int x = origin.x;
+            int y = origin.y;
 
 
             for (int i = -1; i < 1; i++) {
                 if (i == 0) i = 1;
 
                 // for x-values
-                int[] coords = searchInWorld(searchField(x + i, y));
+                Coordinate coords = searchInWorld(searchField(x + i, y));
                 if (coords != null && searchField(x + i, y).index == -1) {
                     setIndex(coords, layer);
                     recurcoords.add(coords);
