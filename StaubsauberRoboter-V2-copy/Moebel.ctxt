@@ -1,9 +1,0 @@
-#BlueJ class context
-comment0.target=Moebel
-comment0.text=\n\ Write\ a\ description\ of\ class\ M\u00F6bel\ here.\n\ \n\ @author\ (your\ name)\ \n\ @version\ (a\ version\ number\ or\ a\ date)\n
-comment1.params=xWidth\ yWidth
-comment1.target=Moebel(int,\ int)
-comment2.params=
-comment2.target=void\ act()
-comment2.text=\n\ Act\ -\ do\ whatever\ the\ M\u00F6bel\ wants\ to\ do.\ This\ method\ is\ called\ whenever\n\ the\ 'Act'\ or\ 'Run'\ button\ gets\ pressed\ in\ the\ environment.\n
-numComments=3
