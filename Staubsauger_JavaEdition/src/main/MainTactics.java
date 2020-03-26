@@ -5,6 +5,7 @@ import world.Coordinate;
 import world.Field;
 import world.World;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -142,17 +143,30 @@ public class MainTactics {
     // recursive method
     private static int counter = 0;   // random movement iterations counter
     private static void randomMove(Coordinate origin) {
+        Coordinate currentPosition = origin;
+
         // increasing iterations counter
         counter++;
+
+        // marking current position
+        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0xEA4836));
 
         // clean field
         world.fields[origin.x][origin.y].clean();
 
         // calculating destiny field
-        Coordinate destiny = rng.nextBoolean() ? new Coordinate(origin.x + getRandomWithExclusion(rng, -1, 1, 0),
-                origin.y) : new Coordinate(origin.x, origin.y + getRandomWithExclusion(rng, -1, 1, 0));
+
+        // checking borders
+        int randomX = origin.x + getRandomWithExclusion(rng, -1, 1, 0);
+        int randomY = origin.y + getRandomWithExclusion(rng, -1, 1, 0);
+        if (origin.x == world.width - 1) randomX = origin.x - 1;
+        if (origin.x == 0) randomX = origin.x + 1;
+        if (origin.y == world.height - 1) randomY = origin.y - 1;
+        if (origin.y == 0) randomY = origin.y + 1;
+
+        Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, origin.y) : new Coordinate(origin.x, randomY);
         try {
-            TimeUnit.MILLISECONDS.sleep(800);
+            TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

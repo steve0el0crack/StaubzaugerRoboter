@@ -24,8 +24,13 @@ public class Field extends JPanel {
     }
 
     public void clean() {
-        setBackground(new Color(0x4B82D2));
         isClean = true;
+    }
+
+    public void update() {
+        if (isClean) {
+            setBackground(new Color(0x4B82D2));
+        }
     }
 
     public boolean isClean() {
