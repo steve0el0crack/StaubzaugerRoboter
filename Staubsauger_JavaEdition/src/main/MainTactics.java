@@ -5,30 +5,32 @@ import world.Coordinate;
 import world.Field;
 import world.World;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class MainTactics {
     private static World world;
     private static Random rng = new Random();
     private static Visualizer visualizer;
 
+    private static Cleaner cleaner;
+
     // main process
     public static void main(String[] args) {
         // max size for x and y is 10
         world = new World(10, 10);
-
         Coordinate origin = setOrigin();
-
         numbering(searchByDistance(0), 1);
-
         visualizer = new Visualizer(world);
 
-        //randomMovement(origin);
+        //randomMovement
+        cleaner = new Cleaner(origin, world);
+        cleaner.setDelay(1);
 
-        visualizer.repaint();
+        while (true) {
+            cleaner.randomMove();
+            visualizer.update(world);
+        }
     }
 
     private static Coordinate setOrigin() {
@@ -96,17 +98,6 @@ public class MainTactics {
         return coords;
     }
 
-    public static int getRandomWithExclusion(Random rnd, int start, int end, int... exclude) {
-        int random = start + rnd.nextInt(end - start + 1 - exclude.length);
-        for (int ex : exclude) {
-            if (random < ex) {
-                break;
-            }
-            random++;
-        }
-        return random;
-    }
-
     // recursive method
     private static void numbering(ArrayList<Coordinate> origins, int layer) {
         ArrayList<Coordinate> recurcoords = new ArrayList<>();
@@ -137,46 +128,6 @@ public class MainTactics {
 
         if (countPlacesByIndex(-1) > 0) {
             numbering(recurcoords, layer+1);
-        }
-    }
-
-    // recursive method
-    private static int counter = 0;   // random movement iterations counter
-    private static void randomMovement(Coordinate origin) {
-        Coordinate currentPosition = origin;
-
-        // increasing iterations counter
-        counter++;
-
-        // marking current position
-        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0xEADC6D));
-
-        // clean field
-        world.fields[origin.x][origin.y].clean();
-
-        // calculating destiny field
-
-        // checking borders
-        int randomX = origin.x + getRandomWithExclusion(rng, -1, 1, 0);
-        int randomY = origin.y + getRandomWithExclusion(rng, -1, 1, 0);
-        if (origin.x == world.width - 1) randomX = origin.x - 1;
-        if (origin.x == 0) randomX = origin.x + 1;
-        if (origin.y == world.height - 1) randomY = origin.y - 1;
-        if (origin.y == 0) randomY = origin.y + 1;
-
-        Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, origin.y) : new Coordinate(origin.x, randomY);
-        try {
-            TimeUnit.MICROSECONDS.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // updating visualizer
-        visualizer.updateWorld(world);
-
-        // Termination condition
-        if (counter <= 10000) {
-            randomMovement(destiny);
         }
     }
 }

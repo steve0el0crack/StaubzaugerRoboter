@@ -34,7 +34,7 @@ public class Visualizer extends JFrame {
         repaint();
     }
 
-    public void updateWorld(World world) {
+    public void update(World world) {
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
                 world.fields[x][y].setBounds(x * 95, y * 95, 95, 95);
