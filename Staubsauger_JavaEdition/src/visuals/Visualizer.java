@@ -9,6 +9,10 @@ import java.awt.*;
 public class Visualizer extends JFrame {
     private Field[][] tiles;
 
+    public static void main(String[] args) {
+
+    }
+
     public Visualizer(World world) {
         setTitle("world.World visuals.Visualizer");
         setSize(1000, 1000);

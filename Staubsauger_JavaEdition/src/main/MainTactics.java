@@ -26,7 +26,7 @@ public class MainTactics {
 
         visualizer = new Visualizer(world);
 
-        randomMovement(origin);
+        //randomMovement(origin);
 
         visualizer.repaint();
     }
@@ -166,7 +166,7 @@ public class MainTactics {
 
         Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, origin.y) : new Coordinate(origin.x, randomY);
         try {
-            TimeUnit.MICROSECONDS.sleep(100);
+            TimeUnit.MICROSECONDS.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
