@@ -19,7 +19,7 @@ public class Field extends JPanel {
         // initialise indexLabel
         indexLabel = new JLabel();
         indexLabel.setBounds(getX() + 50, getY() + 50, 0, 0);
-        indexLabel.setForeground(new Color(0xD8F59C));
+        indexLabel.setForeground(new Color(0x000000));
         add(indexLabel);
     }
 
@@ -29,7 +29,7 @@ public class Field extends JPanel {
 
     public void update() {
         if (isClean) {
-            setBackground(new Color(0x4B82D2));
+            setBackground(new Color(0x82D272));
         }
     }
 

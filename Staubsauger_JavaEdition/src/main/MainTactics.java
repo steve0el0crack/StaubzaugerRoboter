@@ -26,7 +26,7 @@ public class MainTactics {
 
         visualizer = new Visualizer(world);
 
-        randomMove(origin);
+        randomMovement(origin);
 
         visualizer.repaint();
     }
@@ -142,14 +142,14 @@ public class MainTactics {
 
     // recursive method
     private static int counter = 0;   // random movement iterations counter
-    private static void randomMove(Coordinate origin) {
+    private static void randomMovement(Coordinate origin) {
         Coordinate currentPosition = origin;
 
         // increasing iterations counter
         counter++;
 
         // marking current position
-        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0xEA4836));
+        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0xEADC6D));
 
         // clean field
         world.fields[origin.x][origin.y].clean();
@@ -166,7 +166,7 @@ public class MainTactics {
 
         Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, origin.y) : new Coordinate(origin.x, randomY);
         try {
-            TimeUnit.MILLISECONDS.sleep(50);
+            TimeUnit.MICROSECONDS.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -175,8 +175,8 @@ public class MainTactics {
         visualizer.updateWorld(world);
 
         // Termination condition
-        if (counter <= 100) {
-            randomMove(destiny);
+        if (counter <= 10000) {
+            randomMovement(destiny);
         }
     }
 }
