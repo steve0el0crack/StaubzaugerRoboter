@@ -21,7 +21,6 @@
     place)
   )
 
-
 ;;since every index is positive, and there are no diagonal movements. Its just a matter of math.
 (defn number-places-around
   [start  
@@ -35,19 +34,15 @@
              (not (= (:distance place) nil)) place
              (= 1 total-distance) (assoc place :distance distance)
              (= 0 total-distance) start
-             true place
-             )  
-           ))
-       universe)
-  )
+             true place)))
+       universe))
 
 ;;conditions used while numbering
 (defn all-numbered?
   [universe]
   (if (= (count (filter (fn [place] (= (:distance place) nil)) universe)) 0)
     true
-    false)
-  )
+    false))
 
 (defn get-numbered
   [universe
@@ -56,7 +51,6 @@
         u universe]
     (filter (fn [place] (= (:distance place) d)) u)))
 
-;;///////////////////SOLVED BY LAYERS//////////////////////////////
 (def nth-layer
   (fn [distance
        initialworld
@@ -71,22 +65,19 @@
         (recur (+ index 1)
                (nth origins (+ index 1))
                distance
-               (number-places-around (nth origins (+ index 1)) currentworld d))
-        ))))
+               (number-places-around (nth origins (+ index 1)) currentworld d))))))
 
-(def first-layer (partial nth-layer 1))
-(def first-layer-ready
-  (first-layer world [setorigin]))
+(defn numbering
+  [initialworld]
+  (loop [currentworld initialworld
+        distance 1
+        origins [setorigin]]
+    (if (all-numbered? currentworld)
+      currentworld
+      (recur (nth-layer distance currentworld origins)
+             (+ distance 1)
+             (get-numbered (nth-layer distance currentworld origins) distance)))))
 
-(def second-layer (partial nth-layer 2))
-(def second-layer-ready
-  (second-layer (number-places-around setorigin initialworld 1) (get-numbered first-numbering 1)))
-
-(def third-layer (partial nth-layer 3))
-(def third-layer-ready
-  (third-layer second-layer-ready (get-numbered second-layer-ready 2))) 
-
-
-
-
+(defn -main []
+  (numbering world))
 
