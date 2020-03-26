@@ -1,16 +1,15 @@
 package visuals;
 
 import world.Field;
-import world.Tile;
+import world.World;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Visualizer extends JFrame {
-    private Tile[][] tiles;
+    private Field[][] tiles;
 
-    public Visualizer(ArrayList<Field> fields) {
+    public Visualizer(World world) {
         setTitle("world.World visuals.Visualizer");
         setSize(1000, 1000);
         setLocationRelativeTo(null);
@@ -19,22 +18,26 @@ public class Visualizer extends JFrame {
         setResizable(false);
         setVisible(true);
 
-
-
-        tiles = new Tile[10][10];
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
-                tiles[x][y] = new Tile();
-                tiles[x][y].setBounds(x * 95, y * 95, 95, 95);
-
-                for (Field f : fields) {
-                    if (f.coord.x == x && f.coord.y == y) {
-                        tiles[x][y].indexLabel.setText(Integer.toString(f.index));
-                        tiles[x][y].setBackground(new Color(f.index * 10, f.index * 10, f.index * 10));
-                    }
-                }
-                add(tiles[x][y]);
+                world.fields[x][y].setBounds(x * 95, y * 95, 95, 95);
+                world.fields[x][y].indexLabel.setText(Integer.toString(world.fields[x][y].index));
+                int colorMultiplier = Math.abs(world.fields[x][y].index) * 10;
+                world.fields[x][y].setBackground(new Color(colorMultiplier, colorMultiplier, colorMultiplier));
+                add(world.fields[x][y]);
             }
         }
+        repaint();
+    }
+
+    public void updateWorld(World world) {
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                world.fields[x][y].setBounds(x * 95, y * 95, 95, 95);
+                world.fields[x][y].indexLabel.setText(Integer.toString(world.fields[x][y].index));
+                add(world.fields[x][y]);
+            }
+        }
+        repaint();
     }
 }

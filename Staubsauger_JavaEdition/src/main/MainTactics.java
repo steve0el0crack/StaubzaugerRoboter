@@ -7,57 +7,64 @@ import world.World;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class MainTactics {
     private static World world;
     private static Random rng = new Random();
+    private static Visualizer visualizer;
 
     // main process
     public static void main(String[] args) {
         // max size for x and y is 10
         world = new World(10, 10);
 
-        setOrigin();
+        Coordinate origin = setOrigin();
 
         numbering(searchByDistance(0), 1);
 
-        Visualizer visualizer = new Visualizer(world.fields);
+        visualizer = new Visualizer(world);
+
+        randomMove(origin);
+
         visualizer.repaint();
     }
 
     private static Coordinate setOrigin() {
-        world.fields.get(rng.nextInt(world.fields.size())).index = 0;
-        return world.fields.get(rng.nextInt(world.fields.size())).coord;
+        Random rng = new Random();
+        int x = rng.nextInt(world.width);
+        int y = rng.nextInt(world.height);
+
+        world.fields[x][y].index = 0;
+        return world.fields[x][y].coord;
     }
 
-    private static void setIndex(Coordinate coord, int value) {
-        for (int i = 0; i < world.fields.size(); i++) {
-            if (world.fields.get(i).coord == coord) {
-                world.fields.get(i).index = value;
-            }
-        }
+    private static void setIndex(Coordinate c, int value) {
+        world.fields[c.x][c.y].index = value;
     }
 
-    private static int countPlaces(int pIndex) {
+    private static int countPlacesByIndex(int pIndex) {
         int counter = 0;
-        for (Field f : world.fields) {
-            if (f.index == pIndex) {
-                counter++;
+        for (Field[] slice : world.fields) {
+            for (Field f : slice) {
+                if (f.index == pIndex) {
+                    counter++;
+                }
             }
         }
         return counter;
     }
 
     private static Field searchField(int x, int y) {
-
-        for (Field f : world.fields) {
-            if (f.coord.x == x) {
-                if (f.coord.y == y) {
-                    return f;
+        for (Field[] slice : world.fields) {
+            for (Field f : slice) {
+                if (f.coord.x == x) {
+                    if (f.coord.y == y) {
+                        return f;
+                    }
                 }
             }
         }
-
         return null;
     }
 
@@ -66,27 +73,37 @@ public class MainTactics {
             return null;
         }
 
-        Coordinate coord;
-
-        for (Field f : world.fields) {
-            if (f == field) {
-                return f.coord;
+        for (Field[] slice : world.fields) {
+            for (Field f : slice) {
+                if (f == field) return f.coord;
             }
         }
-
         return null;
     }
 
     private static ArrayList<Coordinate> searchByDistance(int value) {
         ArrayList<Coordinate> coords = new ArrayList<>();
 
-        for (Field f : world.fields) {
-            if (f.index == value) {
-                coords.add(f.coord);
+        for (Field[] slice : world.fields) {
+            for (Field f : slice) {
+                if (f.index == value) {
+                    coords.add(f.coord);
+                }
             }
         }
 
         return coords;
+    }
+
+    public static int getRandomWithExclusion(Random rnd, int start, int end, int... exclude) {
+        int random = start + rnd.nextInt(end - start + 1 - exclude.length);
+        for (int ex : exclude) {
+            if (random < ex) {
+                break;
+            }
+            random++;
+        }
+        return random;
     }
 
     // recursive method
@@ -117,8 +134,35 @@ public class MainTactics {
             }
         }
 
-        if (countPlaces(-1) > 0) {
+        if (countPlacesByIndex(-1) > 0) {
             numbering(recurcoords, layer+1);
+        }
+    }
+
+    // recursive method
+    private static int counter = 0;   // random movement iterations counter
+    private static void randomMove(Coordinate origin) {
+        // increasing iterations counter
+        counter++;
+
+        // clean field
+        world.fields[origin.x][origin.y].clean();
+
+        // calculating destiny field
+        Coordinate destiny = rng.nextBoolean() ? new Coordinate(origin.x + getRandomWithExclusion(rng, -1, 1, 0),
+                origin.y) : new Coordinate(origin.x, origin.y + getRandomWithExclusion(rng, -1, 1, 0));
+        try {
+            TimeUnit.MILLISECONDS.sleep(800);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // updating visualizer
+        visualizer.updateWorld(world);
+
+        // Termination condition
+        if (counter <= 100) {
+            randomMove(destiny);
         }
     }
 }

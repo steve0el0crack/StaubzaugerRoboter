@@ -1,20 +1,20 @@
 package world;
 
-import java.util.ArrayList;
-
 public class World {
-    public ArrayList<Field> fields = new ArrayList<>();
+    public Field[][] fields;
 
-    final int width;
-    final int height;
+    public final int width;
+    public final int height;
 
     public World(int x, int y) {
         width = x;
         height = y;
 
-        for (int i = 0; i < x; i++) {
-            for (int j = 0; j < y; j++) {
-                fields.add(new Field(i, j, false, -1));
+        fields = new Field[width][height];
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                fields[i][j] = new Field(i, j, false, -1);
             }
         }
     }
@@ -23,13 +23,13 @@ public class World {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
 
-                for (Field f : fields) {
-
-                    if (f.coord.x == x && f.coord.y == y) {
-                        System.out.print(f.index + "  ");
+                for (Field[] slice : fields) {
+                    for (Field f : slice) {
+                        if (f.coord.x == x && f.coord.y == y) {
+                            System.out.print(f.index + "  ");
+                        }
                     }
                 }
-
             }
             System.out.println();
         }
