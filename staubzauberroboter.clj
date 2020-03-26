@@ -53,6 +53,15 @@
 (def sixth-numbering (number-places-around {:x 2 :y 1 :state nil :distance 2 :display nil} fifth-numbering 3))
 
 
+
+
+
+
+
+
+
+
+
 ;;recursive tools in Clojure
 (defn factorial [number]
   (loop [x number,
