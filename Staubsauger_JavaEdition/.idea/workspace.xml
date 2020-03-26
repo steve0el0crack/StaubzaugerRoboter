@@ -2,21 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1388071-2f04-48d8-be92-f091ffc6f72f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Field.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/world/Coordinate.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Staubsauger_JavaEdition.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Staubsauger_JavaEdition.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/MainTactics.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/MainTactics.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Tile.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Tile.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Visualizer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Visualizer.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/World.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/World.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/MainTactics.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/visuals/Visualizer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/world/Coordinate.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/world/Field.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/world/Tile.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/world/World.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Field.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/MainTactics.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Tile.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/Visualizer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/Staubsauger_JavaEdition/World.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Field.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/Field.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainTactics.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/MainTactics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/Tile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Visualizer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/visuals/Visualizer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/World.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/World.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +47,7 @@
   </component>
   <component name="RunManager">
     <configuration name="MainTactics" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="MainTactics" />
+      <option name="MAIN_CLASS_NAME" value="main.MainTactics" />
       <module name="Staubsauger_JavaEdition" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -104,22 +101,22 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="348" key="GridCell.Tab.-1.right/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1584993843375" />
-    <state width="1877" height="274" key="GridCell.Tab.0.bottom" timestamp="1584996950202">
+    <state width="1877" height="274" key="GridCell.Tab.0.bottom" timestamp="1585146049933">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="274" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1584996950202" />
-    <state width="1877" height="274" key="GridCell.Tab.0.center" timestamp="1584996950202">
+    <state width="1877" height="274" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1585146049933" />
+    <state width="1877" height="274" key="GridCell.Tab.0.center" timestamp="1585146049933">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="274" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1584996950202" />
-    <state width="1877" height="274" key="GridCell.Tab.0.left" timestamp="1584996950202">
+    <state width="1877" height="274" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1585146049933" />
+    <state width="1877" height="274" key="GridCell.Tab.0.left" timestamp="1585146049933">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="274" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1584996950202" />
-    <state width="1877" height="274" key="GridCell.Tab.0.right" timestamp="1584996950202">
+    <state width="1877" height="274" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1585146049933" />
+    <state width="1877" height="274" key="GridCell.Tab.0.right" timestamp="1585146049933">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="274" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1584996950202" />
+    <state width="1877" height="274" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1280.984@0.0.1920.1040" timestamp="1585146049933" />
     <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1584993811219">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

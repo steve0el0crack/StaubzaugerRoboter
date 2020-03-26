@@ -1,3 +1,5 @@
+package world;
+
 import java.util.ArrayList;
 
 public class World {
@@ -23,7 +25,7 @@ public class World {
 
                 for (Field f : fields) {
 
-                    if (f.coords[0] == x && f.coords[1] == y) {
+                    if (f.coord.x == x && f.coord.y == y) {
                         System.out.print(f.index + "  ");
                     }
                 }
@@ -33,6 +35,4 @@ public class World {
         }
         System.out.println("\n");
     }
-
-
 }

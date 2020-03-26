@@ -1,3 +1,8 @@
+package visuals;
+
+import world.Field;
+import world.Tile;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -6,7 +11,7 @@ public class Visualizer extends JFrame {
     private Tile[][] tiles;
 
     public Visualizer(ArrayList<Field> fields) {
-        setTitle("World Visualizer");
+        setTitle("world.World visuals.Visualizer");
         setSize(1000, 1000);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -23,7 +28,7 @@ public class Visualizer extends JFrame {
                 tiles[x][y].setBounds(x * 95, y * 95, 95, 95);
 
                 for (Field f : fields) {
-                    if (f.coords[0] == x && f.coords[1] == y) {
+                    if (f.coord.x == x && f.coord.y == y) {
                         tiles[x][y].indexLabel.setText(Integer.toString(f.index));
                         tiles[x][y].setBackground(new Color(f.index * 10, f.index * 10, f.index * 10));
                     }

@@ -1,3 +1,9 @@
+package main;
+
+import visuals.Visualizer;
+import world.Field;
+import world.World;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -19,12 +25,12 @@ public class MainTactics {
 
     private static int[] setOrigin() {
         world.fields.get(rng.nextInt(world.fields.size())).index = 0;
-        return world.fields.get(rng.nextInt(world.fields.size())).coords;
+        return world.fields.get(rng.nextInt(world.fields.size())).coord;
     }
 
     private static void setIndex(int[] coords, int value) {
         for (int i = 0; i < world.fields.size(); i++) {
-            if (world.fields.get(i).coords == coords) {
+            if (world.fields.get(i).coord == coords) {
                 world.fields.get(i).index = value;
             }
         }
@@ -43,8 +49,8 @@ public class MainTactics {
     private static Field searchField(int x, int y) {
 
         for (Field f : world.fields) {
-            if (f.coords[0] == x) {
-                if (f.coords[1] == y) {
+            if (f.coord.x == x) {
+                if (f.coord.y == y) {
                     return f;
                 }
             }
@@ -62,7 +68,7 @@ public class MainTactics {
 
         for (Field f : world.fields) {
             if (f == field) {
-                coords = f.coords;
+                coords = f.coord;
             }
         }
 
@@ -74,7 +80,7 @@ public class MainTactics {
 
         for (Field f : world.fields) {
             if (f.index == value) {
-                coords.add(f.coords);
+                coords.add(f.coord);
             }
         }
 

@@ -1,7 +1,9 @@
+package world;
+
 import javax.swing.*;
 import java.awt.*;
 
-class Tile extends JPanel {
+public class Tile extends JPanel {
     public JLabel indexLabel;
 
     public Tile() {
