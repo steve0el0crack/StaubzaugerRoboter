@@ -78,6 +78,7 @@
              (+ distance 1)
              (get-numbered (nth-layer distance currentworld origins) distance)))))
 
-(defn -main []
-  (numbering world))
+(def numbered-world (numbering world))
+
+
 
