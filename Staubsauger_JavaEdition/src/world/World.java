@@ -6,6 +6,8 @@ public class World {
     public final int width;
     public final int height;
 
+    public Coordinate origin;
+
     public World(int x, int y) {
         width = x;
         height = y;
@@ -34,5 +36,9 @@ public class World {
             System.out.println();
         }
         System.out.println("\n");
+    }
+
+    public void setOrigin(Coordinate o) {
+        origin = o;
     }
 }

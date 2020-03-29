@@ -8,7 +8,7 @@ import world.World;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MainTactics {
+public class Main {
     private static World world;
     private static Random rng = new Random();
     private static Visualizer visualizer;
@@ -19,27 +19,55 @@ public class MainTactics {
     public static void main(String[] args) {
         // max size for x and y is 10
         world = new World(10, 10);
-        Coordinate origin = setOrigin();
+        world.setOrigin(setOrigin());
+
         numbering(searchByDistance(0), 1);
         visualizer = new Visualizer(world);
 
-        //randomMovement
-        cleaner = new Cleaner(origin, world);
+        cleaner = new Cleaner(world.origin, world, visualizer);
         cleaner.setDelay(1);
-
-        while (true) {
-            cleaner.randomMove();
-            visualizer.update(world);
-        }
+        cleaner.randomMove(Cleaner.UNTILCLEAN);
+        visualizer.update(world);
     }
 
     private static Coordinate setOrigin() {
-        Random rng = new Random();
         int x = rng.nextInt(world.width);
         int y = rng.nextInt(world.height);
 
         world.fields[x][y].index = 0;
         return world.fields[x][y].coord;
+    }
+
+    private static void numbering(ArrayList<Coordinate> origins, int layer) {
+        ArrayList<Coordinate> recurcoords = new ArrayList<>();
+
+        for (Coordinate origin : origins) {
+            int x = origin.x;
+            int y = origin.y;
+
+
+            for (int i = -1; i < 1; i++) {
+                if (i == 0) i = 1;
+
+                // for x-values
+                Coordinate coords = searchInWorld(searchField(x + i, y));
+                if (coords != null && searchField(x + i, y).index == -1) {
+                    setIndex(coords, layer);
+                    recurcoords.add(coords);
+                }
+
+                // for y-values
+                coords = searchInWorld(searchField(x, y + i));
+                if (coords != null && searchField(x, y + i).index == -1) {
+                    setIndex(coords, layer);
+                    recurcoords.add(coords);
+                }
+            }
+        }
+
+        if (countPlacesByIndex(-1) > 0) {
+            numbering(recurcoords, layer+1);
+        }
     }
 
     private static void setIndex(Coordinate c, int value) {
@@ -96,38 +124,5 @@ public class MainTactics {
         }
 
         return coords;
-    }
-
-    // recursive method
-    private static void numbering(ArrayList<Coordinate> origins, int layer) {
-        ArrayList<Coordinate> recurcoords = new ArrayList<>();
-
-        for (Coordinate origin : origins) {
-            int x = origin.x;
-            int y = origin.y;
-
-
-            for (int i = -1; i < 1; i++) {
-                if (i == 0) i = 1;
-
-                // for x-values
-                Coordinate coords = searchInWorld(searchField(x + i, y));
-                if (coords != null && searchField(x + i, y).index == -1) {
-                    setIndex(coords, layer);
-                    recurcoords.add(coords);
-                }
-
-                // for y-values
-                coords = searchInWorld(searchField(x, y + i));
-                if (coords != null && searchField(x, y + i).index == -1) {
-                    setIndex(coords, layer);
-                    recurcoords.add(coords);
-                }
-            }
-        }
-
-        if (countPlacesByIndex(-1) > 0) {
-            numbering(recurcoords, layer+1);
-        }
     }
 }
