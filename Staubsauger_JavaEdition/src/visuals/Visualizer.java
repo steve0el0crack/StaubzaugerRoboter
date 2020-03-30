@@ -22,8 +22,8 @@ public class Visualizer extends JFrame {
             for (int y = 0; y < 10; y++) {
                 world.fields[x][y].setBounds(x * 95, y * 95, 95, 95);
                 world.fields[x][y].indexLabel.setText(Integer.toString(world.fields[x][y].index));
-                int colorMultiplier = Math.abs(world.fields[x][y].index) * 10;
-                world.fields[x][y].setBackground(new Color(colorMultiplier, colorMultiplier, colorMultiplier));
+                int color = Math.abs(world.fields[x][y].index) * 10;
+                world.fields[x][y].setBackground(new Color(color, color, color));
                 add(world.fields[x][y]);
             }
         }

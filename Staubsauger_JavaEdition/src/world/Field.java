@@ -29,7 +29,7 @@ public class Field extends JPanel {
 
     public void update() {
         if (isClean) {
-            setBackground(new Color(0x82D272));
+            setBackground(new Color(162, 218, 130,  200 - index * 10));
         }
     }
 
