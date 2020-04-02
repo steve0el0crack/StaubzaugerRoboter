@@ -27,10 +27,9 @@ public class Main {
         visualizer = new Visualizer(world);
 
         cleaner = new Cleaner(world.origin, world, visualizer);
-        cleaner.setDelay(400);
-        //cleaner.randomMovement();
+        cleaner.setDelay(1);
         cleaner.smartMovement(0, world.origin);
-        visualizer.update(world);
+        //cleaner.randomMovement();
     }
 
     // methods

@@ -94,32 +94,39 @@ public class Cleaner {
         }
     }
     public void smartMovement(int dist, Coordinate... targets) {
-        //cleanField(currentPosition);
         for (Coordinate t : targets) {
             subCycle(t);
-            //cleanField(t);
         }
 
         dist++;
 
         if (!allClean()) {
-            visualizer.update(world);
+            //visualizer.update(world);
             smartMovement(dist, searchDist(dist));
         }
 
-        visualizer.update(world);
+        //visualizer.update(world);
     }
-    private void subCycle(Coordinate target) {
-        int xDiff = target.x - currentPosition.x;
-        int yDiff = target.y - currentPosition.y;
+    public void subCycle(Coordinate target) {
+        Coordinate pos = currentPosition;
+        int xDiff = target.x - pos.x;
+        int yDiff = target.y - pos.y;
 
-        for (int x = 0; x <= Math.abs(xDiff); x++) {
-            for (int y = 0; y <= Math.abs(yDiff); y++) {
-                Coordinate tmp = new Coordinate(currentPosition.x + x * Integer.signum(xDiff), currentPosition.y + y * Integer.signum(yDiff));
-                move(tmp);
-                //cleanField(tmp);
-            }
+        for (int x = 1; x <= Math.abs(xDiff); x++) {
+            Coordinate tmp = new Coordinate(pos.x + x * Integer.signum(xDiff), pos.y);
+            move(tmp);
+            cleanField(tmp);
         }
+
+        pos.x = currentPosition.x;
+
+        for (int y = 1; y <= Math.abs(yDiff); y++) {
+            Coordinate tmp = new Coordinate(pos.x, pos.y + y * Integer.signum(yDiff));
+            move(tmp);
+            cleanField(tmp);
+        }
+
+        pos.y = currentPosition.y;
     }
 
     // other
@@ -134,12 +141,14 @@ public class Cleaner {
         Color previous = world.fields[currentPosition.x][currentPosition.y].getBackground();
 
         // marking current position
-        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0xEA6E55));
+        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0x0020FF));
         delay();
 
-        //world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
+        world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
 
         currentPosition = destiny;
+
+        visualizer.update(world);
     }
     private void cleanField(Coordinate pos) {
         world.fields[pos.x][pos.y].clean();
