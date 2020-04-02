@@ -6,7 +6,6 @@ import world.Field;
 import world.World;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.zip.CheckedOutputStream;
 
 public class Main {
     // private fields
@@ -19,6 +18,8 @@ public class Main {
 
     // main process
     public static void main(String[] args) {
+        long startingTime, timeElapsed;
+
         // max size for x and y is 10
         world = new World(10, 10);
         world.setOrigin(setOrigin());
@@ -27,9 +28,13 @@ public class Main {
         visualizer = new Visualizer(world);
 
         cleaner = new Cleaner(world.origin, world, visualizer);
-        cleaner.setDelay(1);
+        cleaner.setDelay(0);
+        startingTime = java.lang.System.currentTimeMillis();
         cleaner.smartMovement(0, world.origin);
         //cleaner.randomMovement();
+        timeElapsed = java.lang.System.currentTimeMillis() - startingTime;
+
+        System.out.println("Time elapsed: " + timeElapsed * 0.001 + "s");
     }
 
     // methods

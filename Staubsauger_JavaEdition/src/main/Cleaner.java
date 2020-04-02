@@ -142,7 +142,7 @@ public class Cleaner {
 
         // marking current position
         world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0x0020FF));
-        delay();
+        if (delay > 0) delay();
 
         world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
 
