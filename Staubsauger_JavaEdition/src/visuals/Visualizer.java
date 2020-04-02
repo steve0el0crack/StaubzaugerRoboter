@@ -2,13 +2,13 @@ package visuals;
 
 import world.Field;
 import world.World;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class Visualizer extends JFrame {
     private Field[][] tiles;
 
+    // constructor
     public Visualizer(World world) {
         setTitle("world.World visuals.Visualizer");
         setSize(1000, 1000);
@@ -30,6 +30,7 @@ public class Visualizer extends JFrame {
         repaint();
     }
 
+    // update visualizer method
     public void update(World world) {
         for (int x = 0; x < 10; x++) {
             for (int y = 0; y < 10; y++) {
