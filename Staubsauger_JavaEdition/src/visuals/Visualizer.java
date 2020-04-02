@@ -6,8 +6,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Visualizer extends JFrame {
-    private Field[][] tiles;
-
     // constructor
     public Visualizer(World world) {
         setTitle("world.World visuals.Visualizer");
