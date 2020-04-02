@@ -25,12 +25,7 @@ public class Field extends JPanel {
 
     public void clean() {
         isClean = true;
-    }
-
-    public void update() {
-        if (isClean) {
-            setBackground(new Color(162, 218, 130,  200 - index * 10));
-        }
+        setBackground(new Color(162, 218, 130,  200 - index * 10));
     }
 
     public boolean isClean() {

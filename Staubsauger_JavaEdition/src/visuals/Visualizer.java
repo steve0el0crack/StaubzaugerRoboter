@@ -35,7 +35,6 @@ public class Visualizer extends JFrame {
             for (int y = 0; y < 10; y++) {
                 world.fields[x][y].setBounds(x * 95, y * 95, 95, 95);
                 world.fields[x][y].indexLabel.setText(Integer.toString(world.fields[x][y].index));
-                world.fields[x][y].update();
                 add(world.fields[x][y]);
             }
         }

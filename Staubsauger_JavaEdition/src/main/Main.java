@@ -4,15 +4,17 @@ import visuals.Visualizer;
 import world.Coordinate;
 import world.Field;
 import world.World;
-
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.zip.CheckedOutputStream;
 
 public class Main {
+    // private fields
     private static World world;
     private static Random rng = new Random();
     private static Visualizer visualizer;
 
+    // actual cleaning robot class
     private static Cleaner cleaner;
 
     // main process
@@ -25,11 +27,13 @@ public class Main {
         visualizer = new Visualizer(world);
 
         cleaner = new Cleaner(world.origin, world, visualizer);
-        cleaner.setDelay(1);
-        cleaner.randomMove(Cleaner.UNTILCLEAN);
+        cleaner.setDelay(400);
+        //cleaner.randomMovement();
+        cleaner.smartMovement(0, world.origin);
         visualizer.update(world);
     }
 
+    // methods
     private static Coordinate setOrigin() {
         int x = rng.nextInt(world.width);
         int y = rng.nextInt(world.height);
@@ -37,7 +41,6 @@ public class Main {
         world.fields[x][y].index = 0;
         return world.fields[x][y].coord;
     }
-
     private static void numbering(ArrayList<Coordinate> origins, int layer) {
         ArrayList<Coordinate> recurcoords = new ArrayList<>();
 
@@ -69,11 +72,9 @@ public class Main {
             numbering(recurcoords, layer+1);
         }
     }
-
     private static void setIndex(Coordinate c, int value) {
         world.fields[c.x][c.y].index = value;
     }
-
     private static int countPlacesByIndex(int pIndex) {
         int counter = 0;
         for (Field[] slice : world.fields) {
@@ -85,7 +86,6 @@ public class Main {
         }
         return counter;
     }
-
     private static Field searchField(int x, int y) {
         for (Field[] slice : world.fields) {
             for (Field f : slice) {
@@ -98,7 +98,6 @@ public class Main {
         }
         return null;
     }
-
     private static Coordinate searchInWorld(Field field) {
         if (field == null) {
             return null;
@@ -111,7 +110,6 @@ public class Main {
         }
         return null;
     }
-
     private static ArrayList<Coordinate> searchByDistance(int value) {
         ArrayList<Coordinate> coords = new ArrayList<>();
 
