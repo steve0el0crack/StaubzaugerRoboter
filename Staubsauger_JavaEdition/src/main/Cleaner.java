@@ -77,10 +77,22 @@ public class Cleaner {
         // checking borders
         int randomX = currentPosition.x + getRandomWithExclusion(rng, -1, 1, 0);
         int randomY = currentPosition.y + getRandomWithExclusion(rng, -1, 1, 0);
-        if (currentPosition.x == world.width - 1) randomX = currentPosition.x - 1;
+        /*if (currentPosition.x == world.width - 1) randomX = currentPosition.x - 1;
         if (currentPosition.x == 0) randomX = currentPosition.x + 1;
         if (currentPosition.y == world.height - 1) randomY = currentPosition.y - 1;
-        if (currentPosition.y == 0) randomY = currentPosition.y + 1;
+        if (currentPosition.y == 0) randomY = currentPosition.y + 1;*/
+
+        int x = currentPosition.x;
+        int y = currentPosition.y;
+
+        if (world.fields[x + 1][y] == null || world.fields[x + 1][y].blocked)
+            randomX = x - 1;
+        if (world.fields[x - 1][y] == null || world.fields[x - 1][y].blocked)
+            randomX = x + 1;
+        if (world.fields[x][y + 1] == null || world.fields[x][y + 1].blocked)
+            randomY = y - 1;
+        if (world.fields[x][y - 1] == null || world.fields[x][y - 1].blocked)
+            randomY = y + 1;
 
         Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, currentPosition.y) : new Coordinate(currentPosition.x, randomY);
 
@@ -138,12 +150,14 @@ public class Cleaner {
         }
     }
     private void move(Coordinate destiny) {
+        // saving color of current field
         Color previous = world.fields[currentPosition.x][currentPosition.y].getBackground();
 
         // marking current position
         world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0x0020FF));
         if (delay > 0) delay();
 
+        // rewriting old color to Field
         world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
 
         currentPosition = destiny;

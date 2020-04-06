@@ -18,6 +18,9 @@ public class Field extends JPanel {
         coord = new Coordinate(x, y);
         blocked = pBlocked;
         index = pIndex;
+        if (blocked) {
+            setBackground(new Color(0xFF00FD));
+        }
 
         // initialise indexLabel
         indexLabel = new JLabel();

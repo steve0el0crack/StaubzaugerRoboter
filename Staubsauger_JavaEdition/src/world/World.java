@@ -1,5 +1,7 @@
 package world;
 
+import java.util.Random;
+
 public class World {
     public Field[][] fields;
 
@@ -13,10 +15,11 @@ public class World {
         height = y;
 
         fields = new Field[width][height];
+        Random rng = new Random();
 
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                fields[i][j] = new Field(i, j, false, -1);
+                fields[i][j] = new Field(i, j, rng.nextBoolean(), -1);
             }
         }
     }

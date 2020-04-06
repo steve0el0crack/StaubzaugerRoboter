@@ -4,6 +4,9 @@ import visuals.Visualizer;
 import world.Coordinate;
 import world.Field;
 import world.World;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,16 +27,18 @@ public class Main {
         world = new World(10, 10);
         world.setOrigin(setOrigin());
 
-        numbering(searchByDistance(0), 1);
+        for (int i = 0; i < 30; i++) {
+            numbering(searchByDistance(i), i + 1);
+        }
+
         visualizer = new Visualizer(world);
 
         cleaner = new Cleaner(world.origin, world, visualizer);
-        cleaner.setDelay(0);
+        cleaner.setDelay(100);
         startingTime = java.lang.System.currentTimeMillis();
-        cleaner.smartMovement(0, world.origin);
-        //cleaner.randomMovement();
+        //cleaner.smartMovement(0, world.origin);
+        cleaner.randomMovement();
         timeElapsed = java.lang.System.currentTimeMillis() - startingTime;
-
         System.out.println("Time elapsed: " + timeElapsed * 0.001 + "s");
     }
 
@@ -72,9 +77,9 @@ public class Main {
             }
         }
 
-        if (countPlacesByIndex(-1) > 0) {
+        /*if (countPlacesByIndex(-1) > 0) {
             numbering(recurcoords, layer+1);
-        }
+        }*/
     }
     private static void setIndex(Coordinate c, int value) {
         world.fields[c.x][c.y].index = value;
@@ -90,12 +95,25 @@ public class Main {
         }
         return counter;
     }
+    private static int countBlockedFields() {
+        int ret = 0;
+        for (Field[] slice : world.fields) {
+            for (Field f : slice) {
+                if (f.blocked) {
+                    ret++;
+                }
+            }
+        }
+        return ret;
+    }
     private static Field searchField(int x, int y) {
         for (Field[] slice : world.fields) {
             for (Field f : slice) {
                 if (f.coord.x == x) {
                     if (f.coord.y == y) {
-                        return f;
+                        if (!f.blocked) {
+                            return f;
+                        }
                     }
                 }
             }
