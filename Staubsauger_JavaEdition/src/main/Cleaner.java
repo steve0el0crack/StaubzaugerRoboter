@@ -15,28 +15,21 @@ public class Cleaner {
     private Random rng = new Random();
     private World world;
     private Visualizer visualizer;
+    private int moveCounter = 0;
 
     // current position of cleaner
     private Coordinate currentPosition;
+    private Coordinate currentRotation;
 
     // constructor
-    public Cleaner(Coordinate startPosition, World pWorld, Visualizer pVisualizer) {
+    public Cleaner(Coordinate startPosition, World pWorld, Visualizer pVisualizer, Coordinate startRotation) {
         currentPosition = startPosition;
         world = pWorld;
         visualizer = pVisualizer;
+        currentRotation = startRotation;
     }
 
     // helper methods
-    private int getRandomWithExclusion(Random rnd, int start, int end, int... exclude) {
-        int random = start + rnd.nextInt(end - start + 1 - exclude.length);
-        for (int ex : exclude) {
-            if (random < ex) {
-                break;
-            }
-            random++;
-        }
-        return random;
-    }
     private Coordinate[] searchDist(int value) {
         ArrayList<Coordinate> coords = new ArrayList<>();
 
@@ -69,79 +62,88 @@ public class Cleaner {
 
     // movement methods
     public void randomMovement() {
-        // clean field
-        cleanField(currentPosition);
 
-        // calculating destiny field
-
-        // checking borders
-        int randomX = currentPosition.x + getRandomWithExclusion(rng, -1, 1, 0);
-        int randomY = currentPosition.y + getRandomWithExclusion(rng, -1, 1, 0);
-        /*if (currentPosition.x == world.width - 1) randomX = currentPosition.x - 1;
-        if (currentPosition.x == 0) randomX = currentPosition.x + 1;
-        if (currentPosition.y == world.height - 1) randomY = currentPosition.y - 1;
-        if (currentPosition.y == 0) randomY = currentPosition.y + 1;*/
-
-        int x = currentPosition.x;
-        int y = currentPosition.y;
-
-        if (world.fields[x + 1][y] == null || world.fields[x + 1][y].blocked)
-            randomX = x - 1;
-        if (world.fields[x - 1][y] == null || world.fields[x - 1][y].blocked)
-            randomX = x + 1;
-        if (world.fields[x][y + 1] == null || world.fields[x][y + 1].blocked)
-            randomY = y - 1;
-        if (world.fields[x][y - 1] == null || world.fields[x][y - 1].blocked)
-            randomY = y + 1;
-
-        Coordinate destiny = rng.nextBoolean() ? new Coordinate(randomX, currentPosition.y) : new Coordinate(currentPosition.x, randomY);
-
-        // moving
-        move(destiny);
-        // updating visualizer
-        visualizer.update(world);
-
-        if (!allClean()) {
-            randomMovement();
-        }
     }
     public void smartMovement(int dist, Coordinate... targets) {
-        for (Coordinate t : targets) {
-            subCycle(t);
-        }
-
-        dist++;
-
+        cleanField();
         if (!allClean()) {
-            //visualizer.update(world);
+            for (Coordinate t : targets) {
+                subCycle(t);
+            }
+            dist++;
             smartMovement(dist, searchDist(dist));
         }
-
-        //visualizer.update(world);
     }
     public void subCycle(Coordinate target) {
-        Coordinate pos = currentPosition;
-        int xDiff = target.x - pos.x;
-        int yDiff = target.y - pos.y;
-
-        for (int x = 1; x <= Math.abs(xDiff); x++) {
-            Coordinate tmp = new Coordinate(pos.x + x * Integer.signum(xDiff), pos.y);
-            move(tmp);
-            cleanField(tmp);
+        while (!(currentPosition.x == target.x && currentPosition.y == target.y) && !allClean()) {
+            turnTowards(target);
+            move(world.fields[currentPosition.x][currentPosition.y]);
+            cleanField();
         }
+    }
+    private void move(Field target) {
+        int targetIndex = target.index;
 
-        pos.x = currentPosition.x;
+        while (!(currentPosition.x == target.coord.x && currentPosition.y == target.coord.y)) {
+            // saving color of current field
+            Color previous = world.fields[currentPosition.x][currentPosition.y].getBackground();
 
-        for (int y = 1; y <= Math.abs(yDiff); y++) {
-            Coordinate tmp = new Coordinate(pos.x, pos.y + y * Integer.signum(yDiff));
-            move(tmp);
-            cleanField(tmp);
+            // marking current position
+            world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0x0020FF));
+            delay();
+
+            // actual movement
+            Field currentField = world.fields[currentPosition.x][currentPosition.y];
+            Coordinate[] potTargets = searchDist(currentField.index + 1);
+            // choosing next subTarget if multiple potential sub targets are available
+            Coordinate subTarget = new Coordinate(0, 0);
+            if (potTargets.length > 1) {
+                int distanceToMainTarget = Math.abs(target.coord.x - currentPosition.x) + Math.abs(target.coord.y - currentPosition.y);
+                for (Coordinate potT : potTargets) {
+                    if (Math.abs(target.coord.x - potT.x) + Math.abs(target.coord.y - potT.y) < distanceToMainTarget) {
+                        distanceToMainTarget = Math.abs(target.coord.x - potT.x) + Math.abs(target.coord.y - potT.y);
+                        subTarget = potT;
+                    }
+                }
+            } else {
+                subTarget = potTargets[0];
+            }
+
+            currentPosition = subTarget;
+
+            // rewriting old color to Field
+            world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
+
+            // incrementing moveCounter and updating visuals
+            moveCounter++;
+            visualizer.update(world);
         }
-
-        pos.y = currentPosition.y;
+    }
+    private void turnTowards(Coordinate target) {
+        int deltaX = target.x - currentPosition.x;
+        int deltaY = target.y - currentPosition.y;
+        if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+            currentRotation = new Coordinate(deltaX, 0);
+        } else {
+            currentRotation = new Coordinate(0, deltaY);
+        }
+        currentRotation.normalize();
     }
 
     // other
+    private boolean checkField() {
+        Coordinate facedField = new Coordinate(currentPosition.x + currentRotation.x, currentPosition.y + currentRotation.y);
+        if ((facedField.x >= 0 && facedField.x <= world.width) && (facedField.y >= 0 && facedField.y <= world.height)) {
+            return world.fields[facedField.x][facedField.y].blocked;
+        }
+        return false;
+    }
+    private void cleanField() {
+        world.fields[currentPosition.x][currentPosition.y].clean();
+    }
+    public void setDelay(int d) {
+        delay = d == 0 ? 1 : d;
+    }
     private void delay() {
         try {
             TimeUnit.MILLISECONDS.sleep(delay);
@@ -149,25 +151,15 @@ public class Cleaner {
             e.printStackTrace();
         }
     }
-    private void move(Coordinate destiny) {
-        // saving color of current field
-        Color previous = world.fields[currentPosition.x][currentPosition.y].getBackground();
 
-        // marking current position
-        world.fields[currentPosition.x][currentPosition.y].setBackground(new Color(0x0020FF));
-        if (delay > 0) delay();
-
-        // rewriting old color to Field
-        world.fields[currentPosition.x][currentPosition.y].setBackground(previous);
-
-        currentPosition = destiny;
-
-        visualizer.update(world);
+    // getter
+    public Coordinate getCurrentPosition() {
+        return currentPosition;
     }
-    private void cleanField(Coordinate pos) {
-        world.fields[pos.x][pos.y].clean();
+    public int getMoveCounter() {
+        return moveCounter;
     }
-    public void setDelay(int d) {
-        delay = d;
+    public Coordinate getCurrentRotation() {
+        return currentRotation;
     }
 }

@@ -4,9 +4,6 @@ import visuals.Visualizer;
 import world.Coordinate;
 import world.Field;
 import world.World;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,13 +30,14 @@ public class Main {
 
         visualizer = new Visualizer(world);
 
-        cleaner = new Cleaner(world.origin, world, visualizer);
-        cleaner.setDelay(100);
+        cleaner = new Cleaner(world.origin, world, visualizer, new Coordinate(0, 1));
+        int delay = 500;
+        cleaner.setDelay(delay);
         startingTime = java.lang.System.currentTimeMillis();
-        //cleaner.smartMovement(0, world.origin);
-        cleaner.randomMovement();
-        timeElapsed = java.lang.System.currentTimeMillis() - startingTime;
-        System.out.println("Time elapsed: " + timeElapsed * 0.001 + "s");
+        cleaner.smartMovement(0, world.origin);
+        //cleaner.randomMovement();
+        timeElapsed = (java.lang.System.currentTimeMillis() - startingTime) - delay * cleaner.getMoveCounter();
+        System.out.println("Effective time elapsed (delay considered): " + timeElapsed * 0.001 + "s");
     }
 
     // methods
