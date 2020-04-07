@@ -34,8 +34,9 @@ public class Main {
         int delay = 500;
         cleaner.setDelay(delay);
         startingTime = java.lang.System.currentTimeMillis();
-        cleaner.smartMovement(0, world.origin);
-        //cleaner.randomMovement();
+        //cleaner.smartMovement(0, world.origin);
+        Coordinate target = searchByDistance(10).get(0);
+        cleaner.testMovement(searchField(target.x, target.y));
         timeElapsed = (java.lang.System.currentTimeMillis() - startingTime) - delay * cleaner.getMoveCounter();
         System.out.println("Effective time elapsed (delay considered): " + timeElapsed * 0.001 + "s");
     }

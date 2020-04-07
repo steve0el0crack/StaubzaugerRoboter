@@ -61,8 +61,8 @@ public class Cleaner {
     }
 
     // movement methods
-    public void randomMovement() {
-
+    public void testMovement(Field target) {
+        move(target);
     }
     public void smartMovement(int dist, Coordinate... targets) {
         cleanField();
