@@ -4,7 +4,11 @@
 ;; Basic variable... dimension of the world. Cases in which the world is not cuadrangular, are not taken into account.
 ;; They are coming soon!
 (def dim 3)
+
 (def n-robots 2)
+(def n-blocks 2)
+
+(def running true)
 
 ;; The structure of the world is a nested list of REF's.
 (def world
@@ -22,20 +26,67 @@
 
 ;; Imitating create-ant of ant.clj of Rich Heckey. But here comes something new and it is my first "Race Condition": I am creating the robots and placing them complete random all over the world. If I make this process one at a time, there will be no problem. But if instead I use a PMAP in order to represent better the fact that that all these robots are gonne be "thrown" into the world and this must be at the same time. In that case I would have my first BIG problem in other languages, but in Clojure there are REF's ATOM's and AGENT's and those tools are great.
 ;; Two functions on separate threads are gonna try to change the state of the same place (to put some Robot in) and since the thing to be changed is not just merely a primitive value, but a REF. This REF will change his state atomically, that means it will accept only one of the robots and as soon as this robot has moved on to the next REF (position), the other will come into play. This happens because the function will be tried a lot of times and only when some condition of mine mantains throug time, the change will be applied. 
-(defn create-robot []
+(defn robot []
   (let [counter 0
         x (rand-int dim)
         y (rand-int dim)
         place (get-place [x y])]
     (sync nil 
-          (alter place assoc :R 0)  ;; Similarly for the process of rendering, and changes happening "on the board", I do need some flag or distinction for those places filled already with some Robot.
-          (agent [x y]))))  ;; At the end I just need a list of agents containing the only data that really matters: The position of the Robot. Because is actually this data that will vary through time, and not other. The timing must be in relate to this.
+          (alter place assoc :R nil :Clean 1)  ;; Similarly for the process of rendering, and changes happening "on the board", I do need some flag or distinction for those places filled already with some Robot.
+          (agent {[x y] 0})))) ;; At the end I just need a list of agents containing the only data that really matters: The position of the Robot and the number of spaces he has been on. Because is actually this data that will vary through time, and not other. The timing must be in relate to this.
 
-(def robots (apply vector (map (fn [_] (create-robot)) (range n-robots))))  
+(def robots (apply vector (map (fn [_] (robot)) (range n-robots))))  
 
-(flatten (for [a  world]
-           (for [b a]
-             @b)))
+
+
+;; And here comes the most interesting part: The logic of the robot itself and how he is gonna interact with his environment.
+;; The previous implementation was actually a solution for finding "the shortest path" in a world. But I think it is a better,
+;; just to implement the easiest and then build upon the results. The basic logic is compound of a pair of commands and conditions:
+;; Move randomly to whatever square you want, but it must be free (with no other robot on it). Stop moving when every square
+;; was already cleaned up. This way I am making sure that two robots will never be at the same time on the same square.
+
+(defn get-places-around [[x y]]
+  (let [xindex (- dim 1)
+        yindex (- dim 1)]
+    (remove (fn [coord] (or (> (first coord) xindex)
+                            (> (second coord) yindex)
+                            (some (fn [axis] (< axis 0)) coord)))
+            (map (fn [delta]
+                   (let [dx (first delta)
+                         dy (second delta)]
+                     [(+ x dx) (+ y dy)]))
+                 [[1 0]
+                  [-1 0]
+                  [0 1]
+                  [0 -1]]))))
+
+;; que el agente tenga la coordenada en la que se ubica, Y EL CONTADOR de cuantos espacios YA VA limpiando...
+
+(defn move
+  [cp nc np counter]
+  (alter cp dissoc :R)
+  (alter np assoc :R counter)
+  (if (some #(= :Clean) (keys @np))
+    (alter np update :Clean inc)
+    (alter np assoc :Clean 1))
+  {nc (+ counter 1)})  ;; the coordinates that were randomely choosen at the beginning, and the counter.
+
+(defn behave
+  [v] ;; this function will be called in an indepent thread and the value of the agent (the robot) will be the argument.
+  (let [cc (first (keys v))
+        cp (get-place cc)
+        nc (rand-nth (get-places-around cc))
+        np (get-place nc)
+        counter (first (vals v))]
+    (dosync
+     (when running
+       (send-off *agent* #'behave))
+     (if (some #(= :R) (keys @np))  ;; the result of this S-exp will be catch by the agent for the next movement.
+       {cc counter}  ;; if he does not move, then nothing should change.
+       (move cp nc np counter)))))  
+
+
+;; The other -and more complex- logic of movement is to first find individaully the most effective way to clean every square...
 
 (def origin
   (let [x (rand-int dim)
@@ -51,20 +102,7 @@
   (if (and (= (:x place) (:x origin)) (= (:y place) (:y setorigin)))
     place))
 
-(defn get-places-around [[x y]]
-  (let [xindex (- (:x world-dims) 1)
-        yindex (- (:y world-dims) 1)]
-    (remove (fn [coord] (or (> (first coord) xindex)
-                            (> (second coord) yindex)
-                            (some (fn [axis] (< axis 0)) coord)))
-            (map (fn [delta]
-                   (let [dx (first delta)
-                         dy (second delta)]
-                     [(+ x dx) (+ y dy)]))
-                 [[1 0]
-                  [-1 0]
-                  [0 1]
-                  [0 -1]]))))
+
 
 ;;since every index is positive, and there are no diagonal movements. Its just a matter of math.
 (defn number-places-around
@@ -129,19 +167,6 @@ world
 
 (def numbered-world (numbering world))
 
-
-(def a (atom []))
-
-(pmap
- (fn [x]3
-   (swap! a conj x))
- (range 10))
-
-(conj [] 1)
-
-(shutdown-agents)
-
-
 ;;******************************************* UI *******************************8
 
 (import
@@ -163,19 +188,28 @@ world
 
 (defn render-place  ;; "{}" WTHIE "{R : T}" RED "{Clean : T}" GREEN "{Block : nil}" BLACK
   [bg x y v]  ;; the color depends on what is in the place at that moment, the value of the ref.
-  (let [white (new Color 255 255 255)
-        green (new Color 0 255 0)
-        red (new Color 255 0 0)
-        black (new Color 0 0 0)] 
-    (doto bg
-      (.setColor (case (first (keys v))
-                   nil white
-                   "Clean" green
-                   "Block" black
-                   :R red))
-      (.fillRect (* x scale) (* y scale)
-                 (* (+ x 1) scale) (* (+ y 1) scale)))))
+    (print "X")
 
+
+&&&&&&&&&&&&& THERE IS AN ERROR... IN THIS PIECE OF CODE...
+  
+  (comment (let [white (new Color 255 255 255)
+          green (new Color 0 255 0)
+          red (new Color 255 0 0)
+          black (new Color 0 0 0)
+          cars (keys v)] 
+  
+      (comment (doto bg
+                 (.setColor
+                  (cond
+                    (= (first cars) nil) white
+                    (some #(= :R) cars) red
+                    (some #(= :Clean) cars) green
+                    (some #(= :Block) cars) black))
+                 (.fillRect (* x scale) (* y scale)
+                            (* (+ x 1) scale) (* (+ y 1) scale)))))))
+
+(def test (atom nil))
 
 (defn render
   [g]
@@ -184,6 +218,9 @@ world
         values (dosync (apply vector (for [x (range dim)
                                            y (range dim)]
                                        @(get-place [x y]))))]
+    (comment (doto bg
+               (.setColor (new Color 0 0 0))
+               (.fillRect 0 0 pixels pixels)))
     (dorun (for [y (range dim)
                  x (range dim)]
              (render-place bg x y (nth values (+ (* y dim) x)))))
@@ -195,4 +232,13 @@ world
              (.setPreferredSize (new Dimension pixels pixels))))
 
 (def frame (doto (new JFrame) (.add panel) .pack .show))
+
+(dorun (map #(send-off % behave) robots))
+asdf
+(flatten (for [a  world]
+           (for [b a]
+             @b)))
+
+
+@test
 
