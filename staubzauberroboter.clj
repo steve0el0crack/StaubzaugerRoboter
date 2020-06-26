@@ -3,12 +3,16 @@
 
 ;; Basic variable... dimension of the world. Cases in which the world is not cuadrangular, are not taken into account.
 ;; They are coming soon!
-(def dim 3)
+(def dim 5)
 
-(def n-robots 2)
+(def n-robots 3)
 (def n-blocks 2)
 
-(def running true)
+;;Just like ant.clj of Rich Hickey
+(def robot-sleep-ms 40)
+(def animation-sleep-ms 100)
+
+(def running (atom true))
 
 ;; The structure of the world is a nested list of REF's.
 (def world
@@ -18,11 +22,22 @@
                                           (range dim))))
                      (range dim))))
 
+(defn view-world [] (flatten (for [a world] (for [b a] @b))))  ;; mainly used for debugging...
+
 ;;I will not dereference the atom here because I want the ATOM itself, and not the value
 (defn get-place [[x y]]
   (-> world
       (nth y)
       (nth x)))
+
+(defn block []
+  (let [x (rand-int dim)
+        y (rand-int dim)]
+    (sync nil
+          (alter (get-place [x y]) assoc :Block nil))
+    [x y]))
+
+
 
 ;; Imitating create-ant of ant.clj of Rich Heckey. But here comes something new and it is my first "Race Condition": I am creating the robots and placing them complete random all over the world. If I make this process one at a time, there will be no problem. But if instead I use a PMAP in order to represent better the fact that that all these robots are gonne be "thrown" into the world and this must be at the same time. In that case I would have my first BIG problem in other languages, but in Clojure there are REF's ATOM's and AGENT's and those tools are great.
 ;; Two functions on separate threads are gonna try to change the state of the same place (to put some Robot in) and since the thing to be changed is not just merely a primitive value, but a REF. This REF will change his state atomically, that means it will accept only one of the robots and as soon as this robot has moved on to the next REF (position), the other will come into play. This happens because the function will be tried a lot of times and only when some condition of mine mantains throug time, the change will be applied. 
@@ -35,9 +50,7 @@
           (alter place assoc :R nil :Clean 1)  ;; Similarly for the process of rendering, and changes happening "on the board", I do need some flag or distinction for those places filled already with some Robot.
           (agent {[x y] 0})))) ;; At the end I just need a list of agents containing the only data that really matters: The position of the Robot and the number of spaces he has been on. Because is actually this data that will vary through time, and not other. The timing must be in relate to this.
 
-(def robots (apply vector (map (fn [_] (robot)) (range n-robots))))  
-
-
+(def robots (apply vector (map (fn [_] (robot)) (range n-robots))))
 
 ;; And here comes the most interesting part: The logic of the robot itself and how he is gonna interact with his environment.
 ;; The previous implementation was actually a solution for finding "the shortest path" in a world. But I think it is a better,
@@ -66,25 +79,43 @@
   [cp nc np counter]
   (alter cp dissoc :R)
   (alter np assoc :R counter)
-  (if (some #(= :Clean) (keys @np))
+  (if (some #(= :Clean %1) (keys @np))
     (alter np update :Clean inc)
     (alter np assoc :Clean 1))
+  ;;(println "Final value (position & value): " nc (+ counter 1))
+  ;;(println " ************************** ")
   {nc (+ counter 1)})  ;; the coordinates that were randomely choosen at the beginning, and the counter.
 
 (defn behave
-  [v] ;; this function will be called in an indepent thread and the value of the agent (the robot) will be the argument.
-  (let [cc (first (keys v))
-        cp (get-place cc)
-        nc (rand-nth (get-places-around cc))
-        np (get-place nc)
-        counter (first (vals v))]
-    (dosync
-     (when running
-       (send-off *agent* #'behave))
-     (if (some #(= :R) (keys @np))  ;; the result of this S-exp will be catch by the agent for the next movement.
-       {cc counter}  ;; if he does not move, then nothing should change.
+  [v] ;; this function will be called in an indepent thread and the value of the agent (the robot) will be the argument: Coordenate and Counter.
+  ;;(println "Start value (position & counter): " v)
+  (let [cc (first (keys v))  ;; current coords [x y]
+        cp (get-place cc)  ;; current place as a REF
+        nc (rand-nth (get-places-around cc))  ;; next coords
+        np (get-place nc)  ;; next place as a REF
+        counter (first (vals v))] ;; the only value hold by the agent...
+    (. Thread (sleep robot-sleep-ms))  ;; the timing for the movement of the robots
+    (dosync  ;; since there are actions involving changes of states of the REF's and AGENT's (in the function move), a transaction must be initialized and declared!
+     (when @running  ;; I am gonna use this FLAG for deciding when to stop the process.
+       (send-off *agent* #'behave))  ;; A new Thread will pass the function to the agent, when in the present Thread it was consumed. This will simulate the run of time in our present reallity.
+     ;;(println "I can move to the following places: " (get-places-around cc))
+     ;;(println "I am moving into --> " nc)
+     (if (or  ;; here come the conditions of the movements, individually seen. The result of this S-exp will be catch by the agent for the next movement.
+          (some #(= :Block %1) (keys @np))  ;; the place I am going to has already a BLOCK in it...
+          (some #(= :R %1) (keys @np))) ;; the place I am going to has already a ROBOT in it...
+       (do
+         ;;(println "I have found it already ocupied, then I'm not moving into it.")
+         {cc counter}) ;; then no move will take place and the current values will be hold for the next try!
        (move cp nc np counter)))))  
 
+(send (first robots) #'behave)
+
+(restart-agent (first robots) {[0 0] 1})  ;; when a transaction in which this agent has taken part fails, then the :status of the agent involved becomes :failed and one must restart him manually. We can know which "nodes" are dead with this technique!
+(send (first robots) (fn [_] {[0 0] 1}))
+
+robots
+
+(first robots)
 
 ;; The other -and more complex- logic of movement is to first find individaully the most effective way to clean every square...
 
@@ -174,7 +205,7 @@ world
  '(javax.swing JPanel JFrame)
  '(java.awt.image BufferedImage))
 
-(def pixels 500)
+(def pixels 800)
 (def scale (/ pixels dim))
 
 ;; The color system used for the process of rendering is RGB, that menas RED, GREEN and BLUE.
@@ -188,26 +219,22 @@ world
 
 (defn render-place  ;; "{}" WTHIE "{R : T}" RED "{Clean : T}" GREEN "{Block : nil}" BLACK
   [bg x y v]  ;; the color depends on what is in the place at that moment, the value of the ref.
-    (print "X")
-
-
-&&&&&&&&&&&&& THERE IS AN ERROR... IN THIS PIECE OF CODE...
-  
-  (comment (let [white (new Color 255 255 255)
-          green (new Color 0 255 0)
-          red (new Color 255 0 0)
-          black (new Color 0 0 0)
-          cars (keys v)] 
-  
-      (comment (doto bg
-                 (.setColor
-                  (cond
-                    (= (first cars) nil) white
-                    (some #(= :R) cars) red
-                    (some #(= :Clean) cars) green
-                    (some #(= :Block) cars) black))
-                 (.fillRect (* x scale) (* y scale)
-                            (* (+ x 1) scale) (* (+ y 1) scale)))))))
+   (let [white (new Color 255 255 255)
+         green (new Color 0 255 0)
+         red (new Color 255 0 0)
+         black (new Color 0 0 0)
+         cars (keys v)] 
+     (doto bg
+       (.setColor
+        (cond
+             (= cars nil) white
+             (some #(= :R %1) cars) (do
+                                      (print "ROBOT")
+                                      red)
+             (some #(= :Clean %1) cars) green
+             (some #(= :Block %1) cars) black))
+       (.fillRect (* x scale) (* y scale)
+                  (* (+ x 1) scale) (* (+ y 1) scale)))))
 
 (def test (atom nil))
 
@@ -218,9 +245,6 @@ world
         values (dosync (apply vector (for [x (range dim)
                                            y (range dim)]
                                        @(get-place [x y]))))]
-    (comment (doto bg
-               (.setColor (new Color 0 0 0))
-               (.fillRect 0 0 pixels pixels)))
     (dorun (for [y (range dim)
                  x (range dim)]
              (render-place bg x y (nth values (+ (* y dim) x)))))
@@ -233,12 +257,18 @@ world
 
 (def frame (doto (new JFrame) (.add panel) .pack .show))
 
-(dorun (map #(send-off % behave) robots))
-asdf
-(flatten (for [a  world]
-           (for [b a]
-             @b)))
+(view-world)
 
+(def animator (agent nil))  ;; this agent is like the god of the simulation, he is incharge of the rendering process and therefore also of mantaining the TIME in the simulation.
+(defn animation [x]
+  (when running
+    (send-off *agent* #'animation))
+  (. panel (repaint))
+  (. Thread (sleep animation-sleep-ms)))
 
-@test
+(dorun (map #(send-off %1 behave) robots))
+(send-off animator animation)
 
+(swap! running (fn [_] false))
+
+(def blocks (apply vector (map (fn [_] (block)) (range n-blocks))))
