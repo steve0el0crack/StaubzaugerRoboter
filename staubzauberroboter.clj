@@ -3,10 +3,10 @@
 
 ;; Basic variable... dimension of the world. Cases in which the world is not cuadrangular, are not taken into account.
 ;; They are coming soon!
-(def dim 5)
+(def dim 10)
 
 (def n-robots 3)
-(def n-blocks 2)
+(def n-blocks 20)
 
 ;;Just like ant.clj of Rich Hickey
 (def robot-sleep-ms 40)
@@ -37,7 +37,7 @@
           (alter (get-place [x y]) assoc :Block nil))
     [x y]))
 
-
+(def blocks (apply vector (map (fn [_] (block)) (range n-blocks))))
 
 ;; Imitating create-ant of ant.clj of Rich Heckey. But here comes something new and it is my first "Race Condition": I am creating the robots and placing them complete random all over the world. If I make this process one at a time, there will be no problem. But if instead I use a PMAP in order to represent better the fact that that all these robots are gonne be "thrown" into the world and this must be at the same time. In that case I would have my first BIG problem in other languages, but in Clojure there are REF's ATOM's and AGENT's and those tools are great.
 ;; Two functions on separate threads are gonna try to change the state of the same place (to put some Robot in) and since the thing to be changed is not just merely a primitive value, but a REF. This REF will change his state atomically, that means it will accept only one of the robots and as soon as this robot has moved on to the next REF (position), the other will come into play. This happens because the function will be tried a lot of times and only when some condition of mine mantains throug time, the change will be applied. 
@@ -50,7 +50,7 @@
           (alter place assoc :R nil :Clean 1)  ;; Similarly for the process of rendering, and changes happening "on the board", I do need some flag or distinction for those places filled already with some Robot.
           (agent {[x y] 0})))) ;; At the end I just need a list of agents containing the only data that really matters: The position of the Robot and the number of spaces he has been on. Because is actually this data that will vary through time, and not other. The timing must be in relate to this.
 
-(def robots (apply vector (map (fn [_] (robot)) (range n-robots))))
+(def robots (apply vector (map (fn [_] (robot)) (range n-robots))))  ;;there is still the problem of SUPERPOSITION... when a robot is generated on the same coords as a block, then this block "dissapear" / is deleted in terms of data, from the REFs value.
 
 ;; And here comes the most interesting part: The logic of the robot itself and how he is gonna interact with his environment.
 ;; The previous implementation was actually a solution for finding "the shortest path" in a world. But I think it is a better,
@@ -108,14 +108,12 @@
          {cc counter}) ;; then no move will take place and the current values will be hold for the next try!
        (move cp nc np counter)))))  
 
-(send (first robots) #'behave)
+;;(send (first robots) #'behave)
 
-(restart-agent (first robots) {[0 0] 1})  ;; when a transaction in which this agent has taken part fails, then the :status of the agent involved becomes :failed and one must restart him manually. We can know which "nodes" are dead with this technique!
-(send (first robots) (fn [_] {[0 0] 1}))
+;;(restart-agent (first robots) {[0 0] 1})  ;; when a transaction in which this agent has taken part fails, then the :status of the agent involved becomes :failed and one must restart him manually. We can know which "nodes" are dead with this technique!
+;;(send (first robots) (fn [_] {[0 0] 1}))
 
-robots
-
-(first robots)
+;;(first robots)
 
 ;; The other -and more complex- logic of movement is to first find individaully the most effective way to clean every square...
 
@@ -228,15 +226,11 @@ world
        (.setColor
         (cond
              (= cars nil) white
-             (some #(= :R %1) cars) (do
-                                      (print "ROBOT")
-                                      red)
+             (some #(= :R %1) cars) red
              (some #(= :Clean %1) cars) green
              (some #(= :Block %1) cars) black))
        (.fillRect (* x scale) (* y scale)
                   (* (+ x 1) scale) (* (+ y 1) scale)))))
-
-(def test (atom nil))
 
 (defn render
   [g]
@@ -257,18 +251,38 @@ world
 
 (def frame (doto (new JFrame) (.add panel) .pack .show))
 
+(defn hoch [x h]
+  (reduce * (for [i (range h)] x)))
+
+(defn all-clean? []
+  (let [state (count (filter
+                      (fn [v] (= (keys v) nil))
+                      (dosync (apply vector (for [x (range dim)
+                                                  y (range dim)]
+                                              @(get-place [x y]))))))]
+    ;; a capture shot of the world was made (state) and from this shot it is going to be determined if the complete world is clean or not.
+    (if (= state 0)
+      true
+      false)))
+
 (view-world)
+(all-clean?)
 
 (def animator (agent nil))  ;; this agent is like the god of the simulation, he is incharge of the rendering process and therefore also of mantaining the TIME in the simulation.
 (defn animation [x]
-  (when running
-    (send-off *agent* #'animation))
-  (. panel (repaint))
-  (. Thread (sleep animation-sleep-ms)))
+  (let [state (count (filter
+                      (fn [v] (= v nil))
+                      (dosync (apply vector (for [x (range dim)
+                                                  y (range dim)]
+                                              @(get-place [x y]))))))]
+      (when @running
+        (send-off *agent* #'animation))
+      (. panel (repaint))
+      (if (all-clean?)   
+        (swap! running (fn [_] false))  ;; in case every place has been cleaned up, our flag is going to turn into false, and the simulation will end!
+        (. Thread (sleep animation-sleep-ms)))))  ;; in the case, the world is still not completely clean, the animation will contine as usual and another thread will continue with this process.
 
 (dorun (map #(send-off %1 behave) robots))
-(send-off animator animation)
+(send-off animator #'animation)
 
-(swap! running (fn [_] false))
-
-(def blocks (apply vector (map (fn [_] (block)) (range n-blocks))))
+(view-world)
